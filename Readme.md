@@ -1,7 +1,7 @@
 # Проект «Киноман»
 
-* Студент: [Натали Белоева](https://up.htmlacademy.ru/ecmascript/15/user/1123699).
-* Наставник: `Неизвестно`.
+* Студент: [Натали Белоева](https://htmlacademy.ru/profile/id1123699).
+* Наставник: [Евгений Алипкин](https://htmlacademy.ru/profile/ealipkin).
 
 ---
 
