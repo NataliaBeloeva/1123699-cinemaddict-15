@@ -1,18 +1,8 @@
-import {createFilmCardTemplate} from './film-card.js';
-
-const createFilmsTitleTemplate = () => (
-  '<h2 class="films-list__title">Top rated</h2>'
-);
-
-const createFilmsExtraTemplate = () => (
+const createFilmsExtraTemplate = (title) => (
   `<section class="films-list films-list--extra">
-    ${createFilmsTitleTemplate()}
-    <div class="films-list__container">
-      ${createFilmCardTemplate()}
-      ${createFilmCardTemplate()}
-    </div>
+    <h2 class="films-list__title">${title}</h2>
+    <div class="films-list__container"></div>
   </section>`
 );
 
 export {createFilmsExtraTemplate};
-
