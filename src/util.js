@@ -1,5 +1,8 @@
-const render = (container, template, place) => {
-  container.insertAdjacentHTML(place, template);
+const PlaceTypes = {
+  BEFORE: 'beforeend',
+  AFTER: 'afterend',
 };
 
-export {render};
+const render = (container, template, place = PlaceTypes.BEFORE) => container.insertAdjacentHTML(place, template);
+
+export {PlaceTypes, render};
