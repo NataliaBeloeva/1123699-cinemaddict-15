@@ -1,13 +1,29 @@
-const createMenuTemplate = () => (
-  `<nav class="main-navigation">
+const filterTitles = {
+  all: 'All Movies',
+  watchlist: 'Watchlist',
+  alreadyWatched: 'History',
+  favorite: 'Favorites',
+};
+
+const isActiveClassName = (condition) => condition ? 'main-navigation__item--active' : '';
+
+const createFilterCountTemplate = (count) => `<span class="main-navigation__item-count">${count}</span>`;
+
+const createFilterItemTemplate = (filter, isActive) => {
+  const {name, count} = filter;
+  return `<a href="#${name}" class="main-navigation__item ${isActiveClassName(isActive)}">${filterTitles[name]}${name !== 'all' ? createFilterCountTemplate(count) : ''}</a>`;
+};
+
+
+const createMenuTemplate = (filterItems, activeFilter) => {
+  const filterItemsTemplate = filterItems.map((filter) => createFilterItemTemplate(filter, filter.name === activeFilter)).join('');
+
+  return `<nav class="main-navigation">
     <div class="main-navigation__items">
-      <a href="#all" class="main-navigation__item main-navigation__item--active">All movies</a>
-      <a href="#watchlist" class="main-navigation__item">Watchlist <span class="main-navigation__item-count">13</span></a>
-      <a href="#history" class="main-navigation__item">History <span class="main-navigation__item-count">4</span></a>
-      <a href="#favorites" class="main-navigation__item">Favorites <span class="main-navigation__item-count">8</span></a>
+      ${filterItemsTemplate}
     </div>
     <a href="#stats" class="main-navigation__additional">Stats</a>
-  </nav>`
-);
+  </nav>`;
+};
 
 export {createMenuTemplate};
