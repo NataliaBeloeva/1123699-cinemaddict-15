@@ -1,3 +1,3 @@
-const createFilmsAmountTemplate = () => '<p>130 291 movies inside</p>';
+const createFilmsAmountTemplate = (amount) => `<p>${amount} movies inside</p>`;
 
 export {createFilmsAmountTemplate};
