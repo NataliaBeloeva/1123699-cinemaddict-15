@@ -1,3 +1,5 @@
+import {createElement} from '../util.js';
+
 const createFilmCardTemplate = (film) => {
   const filmYear = film.filmInfo.release.date.split(' ').splice(-1);
 
@@ -20,4 +22,25 @@ const createFilmCardTemplate = (film) => {
   </article>`;
 };
 
-export {createFilmCardTemplate};
+export default class FilmCard {
+  constructor(film) {
+    this._film = film;
+    this._element = null;
+  }
+
+  getTemplate() {
+    return createFilmCardTemplate(this._film);
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}
