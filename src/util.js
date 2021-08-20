@@ -1,27 +1,43 @@
 import dayjs from 'dayjs';
 
-const PlaceTypes = {
-  BEFORE: 'beforeend',
-  AFTER: 'afterend',
+export const RenderPosition = {
+  AFTERBEGIN: 'afterbegin',
+  BEFOREEND: 'beforeend',
 };
 
-const render = (container, template, place = PlaceTypes.BEFORE) => container.insertAdjacentHTML(place, template);
+export const render = (container, element, place = RenderPosition.BEFOREEND) => {
+  switch (place) {
+    case RenderPosition.AFTERBEGIN:
+      container.prepend(element);
+      break;
+    case RenderPosition.BEFOREEND:
+      container.append(element);
+      break;
+  }
+};
 
-const getRandomInteger = (a = 0, b = 1) => {
+export const createElement = (template) => {
+  const newElement = document.createElement('div');
+  newElement.innerHTML = template;
+
+  return newElement.firstChild;
+};
+
+export const getRandomInteger = (a = 0, b = 1) => {
   const lower = Math.ceil(Math.min(a, b));
   const upper = Math.floor(Math.max(a, b));
 
   return Math.floor(lower + Math.random() * (upper - lower + 1));
 };
 
-const getRandomFloatInteger = (a, b) => {
+export const getRandomFloatInteger = (a, b) => {
   const lower = Math.min(a, b);
   const upper = Math.max(a, b);
 
   return (lower + Math.random() * (upper - lower + 1)).toFixed(1);
 };
 
-const getRandomUniqueInteger = (min, max) => {
+export const getRandomUniqueInteger = (min, max) => {
   const previousValues = [];
   let currentValue = getRandomInteger(min, max);
   if (previousValues.length >= (max - min + 1)) {
@@ -34,10 +50,8 @@ const getRandomUniqueInteger = (min, max) => {
   return currentValue;
 };
 
-const getRandomArrayElement = (elements) => elements[getRandomInteger(0, elements.length - 1)];
+export const getRandomArrayElement = (elements) => elements[getRandomInteger(0, elements.length - 1)];
 
-const shuffleArray = (elements) => elements.sort(() => 0.5 - Math.random());
+export const shuffleArray = (elements) => elements.sort(() => 0.5 - Math.random());
 
-const humanizeDate = (date) => dayjs(date).format('YYYY/MM/DD hh:mm');
-
-export {PlaceTypes, render, getRandomInteger, getRandomFloatInteger, getRandomUniqueInteger, getRandomArrayElement, shuffleArray, humanizeDate};
+export const humanizeDate = (date) => dayjs(date).format('YYYY/MM/DD hh:mm');

@@ -1,3 +1,5 @@
+import {createElement} from '../util.js';
+
 const filterTitles = {
   all: 'All Movies',
   watchlist: 'Watchlist',
@@ -15,7 +17,7 @@ const createFilterItemTemplate = (filter, isActive) => {
 };
 
 
-const createMenuTemplate = (filterItems, activeFilter) => {
+const createFilterTemplate = (filterItems, activeFilter) => {
   const filterItemsTemplate = filterItems.map((filter) => createFilterItemTemplate(filter, filter.name === activeFilter)).join('');
 
   return `<nav class="main-navigation">
@@ -26,4 +28,25 @@ const createMenuTemplate = (filterItems, activeFilter) => {
   </nav>`;
 };
 
-export {createMenuTemplate};
+export default class Filter {
+  constructor(filters) {
+    this._filter = filters;
+    this._element = null;
+  }
+
+  getTemplate() {
+    return createFilterTemplate(this._filter, this._filter[0].name);
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}
