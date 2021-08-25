@@ -1,5 +1,7 @@
 import dayjs from 'dayjs';
-import {getRandomInteger, getRandomFloatInteger, getRandomUniqueInteger, getRandomArrayElement, shuffleArray, humanizeDate} from '../util.js';
+import {getRandomInteger, getRandomFloatInteger, getRandomUniqueInteger, getRandomArrayElement, shuffleArray} from '../utils/common.js';
+import {humanizeDate} from '../utils/film.js';
+
 
 const COMMENTS_AMOUNT = 5;
 
