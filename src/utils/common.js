@@ -28,3 +28,17 @@ export const getRandomUniqueInteger = (min, max) => {
 export const getRandomArrayElement = (elements) => elements[getRandomInteger(0, elements.length - 1)];
 
 export const shuffleArray = (elements) => elements.sort(() => 0.5 - Math.random());
+
+export const updateItem = (items, update) => {
+  const index = items.findIndex((item) => item.id === update.id);
+
+  if (index === -1) {
+    return items;
+  }
+
+  return [
+    ...items.slice(0, index),
+    update,
+    ...items.slice(index + 1),
+  ];
+};
