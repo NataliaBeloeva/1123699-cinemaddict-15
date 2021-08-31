@@ -121,26 +121,6 @@ const GENRES = [
   'Cartoon',
 ];
 
-const MONTHS = [
-  'January',
-  'February',
-  'March',
-  'April',
-  'May',
-  'June',
-  'July',
-  'August',
-  'September',
-  'October',
-  'November',
-  'December',
-];
-
-const days = {
-  MIN: 1,
-  MAX: 28,
-};
-
 const filmDescriptionCount = {
   MIN: 1,
   MAX: 5,
@@ -164,11 +144,6 @@ const filmGenresCount = {
 const filmRating = {
   MIN: 4,
   MAX: 9,
-};
-
-const filmYear = {
-  MIN: 1920,
-  MAX: 2021,
 };
 
 const filmDuration = {
@@ -221,7 +196,7 @@ const generateCard = (idx) => {
       writers: writers.join(', '),
       actors: actors.join(', '),
       release: {
-        date: `${getRandomInteger(days.MIN, days.MAX)} ${getRandomArrayElement(MONTHS)} ${getRandomInteger(filmYear.MIN, filmYear.MAX)}`,
+        date: date,
         releaseCountry: getRandomArrayElement(COUNTRIES),
       },
       runtime: `${getRandomInteger(filmDuration.hours.MIN, filmDuration.hours.MAX)}h ${getRandomInteger(filmDuration.minutes.MIN, filmDuration.minutes.MAX)}m`,
