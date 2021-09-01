@@ -1,5 +1,7 @@
 import {render, remove, RenderPosition} from '../utils/render.js';
 import {updateItem} from '../utils/common.js';
+import {sortFilmByDate, sortFilmByRating} from '../utils/film.js';
+import {SortType} from '../const.js';
 import FilmsView from '../view/films.js';
 import FilmsListView from '../view/films-list.js';
 import FilmsContainerView from '../view/films-container.js';
@@ -15,8 +17,8 @@ export default class Films {
   constructor (filmsContainer) {
     this._filmsContainer = filmsContainer;
     this._renderedFilmCount = FILM_COUNT_PER_STEP;
-
     this._filmPresenter = new Map();
+    this._currentSortType = SortType.DEFAULT;
 
     this._filmsComponent = new FilmsView();
     this._filmsListComponent = new FilmsListView();
@@ -28,10 +30,12 @@ export default class Films {
     this._handleFilmChange = this._handleFilmChange.bind(this);
     this._handleModeChange = this._handleModeChange.bind(this);
     this._handleShowMoreClick = this._handleShowMoreClick.bind(this);
+    this._handleSortTypeChange = this._handleSortTypeChange.bind(this);
   }
 
   init(films) {
     this._films = films.slice();
+    this._sourcedFilms = films.slice();
     this._renderFilmBoard(films);
   }
 
@@ -41,11 +45,38 @@ export default class Films {
 
   _handleFilmChange(updatedFilm) {
     this._films = updateItem(this._films, updatedFilm);
+    this._sourcedFilms = updateItem(this._sourcedFilms, updatedFilm);
     this._filmPresenter.get(updatedFilm.id).init(updatedFilm);
+  }
+
+  _sortFilms(sortType) {
+    switch (sortType) {
+      case SortType.DATE:
+        this._films.sort(sortFilmByDate);
+        break;
+      case SortType.RATING:
+        this._films.sort(sortFilmByRating);
+        break;
+      default:
+        this._films = this._sourcedFilms.slice();
+    }
+
+    this._currentSortType = sortType;
+  }
+
+  _handleSortTypeChange(sortType) {
+    if (this._currentSortType === sortType) {
+      return;
+    }
+
+    this._sortFilms(sortType);
+    this._clearFilmList();
+    this._renderFilmList();
   }
 
   _renderSort() {
     render(this._filmsComponent, this._sortComponent, RenderPosition.BEFOREBEGIN);
+    this._sortComponent.setSortTypeChangeHandler(this._handleSortTypeChange);
   }
 
   _renderFilm(film) {
@@ -104,8 +135,8 @@ export default class Films {
       return;
     }
 
-    this._renderSort();
     this._renderFilmList();
+    this._renderSort();
   }
 }
 

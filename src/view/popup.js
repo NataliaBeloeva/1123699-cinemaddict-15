@@ -1,4 +1,5 @@
 import AbstractView from './abstract.js';
+import {humanizeDatePopup} from '../utils/film.js';
 
 const createGenreTemplate = (genre) => `<span class="film-details__genre">${genre}</span>`;
 
@@ -24,6 +25,7 @@ const generateGenres = (genres) => genres.map(createGenreTemplate).join(' ');
 const generateComments = (comments) => comments.map(createCommentTemplate).join(' ');
 
 const createPopupTemplate = (film) => {
+  const filmDate = humanizeDatePopup(film.filmInfo.release.date);
   const genreTitle = film.filmInfo.genre.length > 1 ? 'Genres' : 'Genre';
   return `<section class="film-details">
     <form class="film-details__inner" action="" method="get">
@@ -65,7 +67,7 @@ const createPopupTemplate = (film) => {
               </tr>
               <tr class="film-details__row">
                 <td class="film-details__term">Release Date</td>
-                <td class="film-details__cell">${film.filmInfo.release.date}</td>
+                <td class="film-details__cell">${filmDate}</td>
               </tr>
               <tr class="film-details__row">
                 <td class="film-details__term">Runtime</td>
