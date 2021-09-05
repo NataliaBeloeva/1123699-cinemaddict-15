@@ -146,15 +146,9 @@ const filmRating = {
   MAX: 9,
 };
 
-const filmDuration = {
-  hours: {
-    MIN: 0,
-    MAX: 3,
-  },
-  minutes: {
-    MIN: 0,
-    MAX: 59,
-  },
+const runtime = {
+  MIN: 45,
+  MAX: 180,
 };
 
 const generateDate = () => {
@@ -199,7 +193,7 @@ const generateCard = (idx) => {
         date: date,
         releaseCountry: getRandomArrayElement(COUNTRIES),
       },
-      runtime: `${getRandomInteger(filmDuration.hours.MIN, filmDuration.hours.MAX)}h ${getRandomInteger(filmDuration.minutes.MIN, filmDuration.minutes.MAX)}m`,
+      runtime: getRandomInteger(runtime.MIN, runtime.MAX),
       genre: genres,
       description: descriptions.join(' '),
     },

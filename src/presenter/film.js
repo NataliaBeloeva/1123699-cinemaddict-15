@@ -92,6 +92,7 @@ export default class Film {
   _onDocumentKeydown(evt) {
     if (evt.key === 'Escape' || evt.key === 'Esc') {
       evt.preventDefault();
+      this._popupComponent.reset(this._film);
       this._closePopup();
     }
   }

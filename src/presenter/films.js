@@ -1,10 +1,11 @@
 import {render, remove, RenderPosition} from '../utils/render.js';
 import {updateItem} from '../utils/common.js';
-import {sortFilmByDate, sortFilmByRating} from '../utils/film.js';
-import {SortType} from '../const.js';
+import {sortFilmByDate, sortFilmByRating, sortFilmByComments} from '../utils/film.js';
+import {SortType, FilmTitles} from '../const.js';
 import FilmsView from '../view/films.js';
 import FilmsListView from '../view/films-list.js';
 import FilmsContainerView from '../view/films-container.js';
+import FilmExtraView from '../view/films-extra.js';
 import NoFilmView from '../view/no-film.js';
 import SortView from '../view/sort.js';
 import ShowMoreView from '../view/show-more.js';
@@ -12,17 +13,24 @@ import FilmPresenter from './film.js';
 
 
 const FILM_COUNT_PER_STEP = 5;
+const FILMS_EXTRA_COUNT = 2;
 
 export default class Films {
   constructor (filmsContainer) {
     this._filmsContainer = filmsContainer;
     this._renderedFilmCount = FILM_COUNT_PER_STEP;
     this._filmPresenter = new Map();
+    this._filmRatedPresenter = new Map();
+    this._filmCommentedPresenter = new Map();
     this._currentSortType = SortType.DEFAULT;
 
     this._filmsComponent = new FilmsView();
     this._filmsListComponent = new FilmsListView();
+    this._filmsRatedListComponent = new FilmExtraView(FilmTitles.RATED);
+    this._filmsCommentedListComponent = new FilmExtraView(FilmTitles.COMMENTED);
     this._filmsContainerComponent = new FilmsContainerView();
+    this._filmsRatedContainerComponent = new FilmsContainerView();
+    this._filmsCommentedContainerComponent = new FilmsContainerView();
     this._noFilmsComponent = new NoFilmView();
     this._sortComponent = new SortView();
     this._showMoreComponent = new ShowMoreView();
@@ -72,6 +80,8 @@ export default class Films {
     this._sortFilms(sortType);
     this._clearFilmList();
     this._renderFilmList();
+    this._renderRatedFilmList();
+    this._renderCommentedFilmList();
   }
 
   _renderSort() {
@@ -85,8 +95,30 @@ export default class Films {
     this._filmPresenter.set(film.id, filmPresenter);
   }
 
+  _renderRatedFilm(film) {
+    const filmPresenter = new FilmPresenter(this._filmsRatedContainerComponent, this._handleFilmChange, this._handleModeChange);
+    filmPresenter.init(film);
+    this._filmRatedPresenter.set(film.id, filmPresenter);
+  }
+
+  _renderCommentedFilm(film) {
+    const filmPresenter = new FilmPresenter(this._filmsCommentedContainerComponent, this._handleFilmChange, this._handleModeChange);
+    filmPresenter.init(film);
+    this._filmCommentedPresenter.set(film.id, filmPresenter);
+  }
+
   _renderFilms(from, to) {
     this._films.slice(from, to).forEach((film) => this._renderFilm(film));
+  }
+
+  _renderRatedFilms(from, to) {
+    const topRatedFilms = this._films.slice().sort(sortFilmByRating);
+    topRatedFilms.slice(from, to).forEach((film) => this._renderRatedFilm(film));
+  }
+
+  _renderCommentedFilms(from, to) {
+    const mostCommentedFilms = this._films.slice().sort(sortFilmByComments);
+    mostCommentedFilms.slice(from, to).forEach((film) => this._renderCommentedFilm(film));
   }
 
   _renderNoFilms() {
@@ -106,13 +138,16 @@ export default class Films {
 
   _renderShowMore() {
     render(this._filmsListComponent, this._showMoreComponent);
-
     this._showMoreComponent.setClickHandler(this._handleShowMoreClick);
   }
 
   _clearFilmList() {
     this._filmPresenter.forEach((presenter) => presenter.destroy());
+    this._filmRatedPresenter.forEach((presenter) => presenter.destroy());
+    this._filmCommentedPresenter.forEach((presenter) => presenter.destroy());
     this._filmPresenter.clear();
+    this._filmRatedPresenter.clear();
+    this._filmCommentedPresenter.clear();
     this._renderedFilmCount = FILM_COUNT_PER_STEP;
     remove(this._showMoreComponent);
   }
@@ -129,6 +164,18 @@ export default class Films {
     }
   }
 
+  _renderRatedFilmList() {
+    render(this._filmsComponent, this._filmsRatedListComponent);
+    render(this._filmsRatedListComponent, this._filmsRatedContainerComponent);
+    this._renderRatedFilms(0, Math.min(this._films.length, FILMS_EXTRA_COUNT));
+  }
+
+  _renderCommentedFilmList() {
+    render(this._filmsComponent, this._filmsCommentedListComponent);
+    render(this._filmsCommentedListComponent, this._filmsCommentedContainerComponent);
+    this._renderCommentedFilms(0, Math.min(this._films.length, FILMS_EXTRA_COUNT));
+  }
+
   _renderFilmBoard() {
     if (this._films.length === 0) {
       this._renderNoFilms();
@@ -137,6 +184,8 @@ export default class Films {
 
     this._renderFilmList();
     this._renderSort();
+    this._renderRatedFilmList();
+    this._renderCommentedFilmList();
   }
 }
 
