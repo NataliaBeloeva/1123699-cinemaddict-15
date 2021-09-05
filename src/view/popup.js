@@ -1,5 +1,6 @@
-import AbstractView from './abstract.js';
-import {humanizeDatePopup} from '../utils/film.js';
+import SmartView from './smart.js';
+import {humanizeDatePopup, humanizeRuntime} from '../utils/film.js';
+import {EMOTIONS} from '../const.js';
 
 const createGenreTemplate = (genre) => `<span class="film-details__genre">${genre}</span>`;
 
@@ -21,12 +22,21 @@ const createCommentTemplate = (message) => {
   </li>`;
 };
 
+const createEmotionTemplate = (emotion, emotionType) => (
+  `<input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-${emotion}" value="${emotion}" ${emotionType === emotion ? 'checked' : ''}>
+    <label class="film-details__emoji-label" for="emoji-${emotion}">
+      <img src="./images/emoji/${emotion}.png" width="30" height="30" alt="emoji">
+    </label>`
+);
+
 const generateGenres = (genres) => genres.map(createGenreTemplate).join(' ');
 const generateComments = (comments) => comments.map(createCommentTemplate).join(' ');
+const generateEmotions = (emotions, emotionType) => emotions.map((emotion) => createEmotionTemplate(emotion, emotionType)).join(' ');
 
 const createPopupTemplate = (film) => {
   const filmDate = humanizeDatePopup(film.filmInfo.release.date);
-  const genreTitle = film.filmInfo.genre.length > 1 ? 'Genres' : 'Genre';
+  const filmRuntime = humanizeRuntime(film.filmInfo.runtime);
+
   return `<section class="film-details">
     <form class="film-details__inner" action="" method="get">
       <div class="film-details__top-container">
@@ -71,14 +81,14 @@ const createPopupTemplate = (film) => {
               </tr>
               <tr class="film-details__row">
                 <td class="film-details__term">Runtime</td>
-                <td class="film-details__cell">${film.filmInfo.runtime}</td>
+                <td class="film-details__cell">${filmRuntime}</td>
               </tr>
               <tr class="film-details__row">
                 <td class="film-details__term">Country</td>
-                <td class="film-details__cell">${film.filmInfo.release.country}</td>
+                <td class="film-details__cell">${film.filmInfo.release.releaseCountry}</td>
               </tr>
               <tr class="film-details__row film-details__row-genre">
-                <td class="film-details__term">${genreTitle}</td>
+                <td class="film-details__term">${(film.filmInfo.genre.length > 1) ? 'Genres' : 'Genre'}</td>
                 <td class="film-details__cell">${generateGenres(film.filmInfo.genre)}</td>
               </tr>
             </table>
@@ -96,32 +106,14 @@ const createPopupTemplate = (film) => {
       <div class="film-details__bottom-container">
         <section class="film-details__comments-wrap">
           <h3 class="film-details__comments-title">Comments <span class="film-details__comments-count">${film.comments.length}</span></h3>
-          <ul class="film-details__comments-list">${generateComments(film.comments)}</ul>
+          ${film.isComments ? `<ul class="film-details__comments-list">${generateComments(film.comments)}</ul>` : ''}
           <div class="film-details__new-comment">
-            <div class="film-details__add-emoji-label"></div>
+            <div class="film-details__add-emoji-label">${film.emotionType ? `<img src="images/emoji/${film.emotionType}.png" width="55" height="55" alt="emoji-${film.emotionType}">` : ''}</div>
             <label class="film-details__comment-label">
-              <textarea class="film-details__comment-input" placeholder="Select reaction below and write comment here" name="comment"></textarea>
+              <textarea class="film-details__comment-input" placeholder="Select reaction below and write comment here" name="comment">${film.newComment}</textarea>
             </label>
             <div class="film-details__emoji-list">
-              <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-smile" value="smile" checked>
-              <label class="film-details__emoji-label" for="emoji-smile">
-                <img src="./images/emoji/smile.png" width="30" height="30" alt="emoji">
-              </label>
-
-              <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-sleeping" value="sleeping">
-              <label class="film-details__emoji-label" for="emoji-sleeping">
-                <img src="./images/emoji/sleeping.png" width="30" height="30" alt="emoji">
-              </label>
-
-              <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-puke" value="puke">
-              <label class="film-details__emoji-label" for="emoji-puke">
-                <img src="./images/emoji/puke.png" width="30" height="30" alt="emoji">
-              </label>
-
-              <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-angry" value="angry">
-              <label class="film-details__emoji-label" for="emoji-angry">
-                <img src="./images/emoji/angry.png" width="30" height="30" alt="emoji">
-              </label>
+              ${generateEmotions(EMOTIONS, film.emotionType)}
             </div>
           </div>
         </section>
@@ -130,19 +122,31 @@ const createPopupTemplate = (film) => {
   </section>`;
 };
 
-export default class Popup extends AbstractView {
+export default class Popup extends SmartView {
   constructor(film) {
     super();
-    this._film = film;
+    this._data = Popup.parseFilmToData(film);
 
     this._closeClickHandler = this._closeClickHandler.bind(this);
     this._favoriteClickHandler = this._favoriteClickHandler.bind(this);
     this._alreadyWatchedClickHandler = this._alreadyWatchedClickHandler.bind(this);
     this._watchlistClickHandler = this._watchlistClickHandler.bind(this);
+
+    this._commentTextInputHandler = this._commentTextInputHandler.bind(this);
+    this._commentEmotionChangeHandler = this._commentEmotionChangeHandler.bind(this);
+    this._scrollPopupHandler = this._scrollPopupHandler.bind(this);
+
+    this._setInnerHandlers();
+  }
+
+  reset(film) {
+    this.updateData(
+      Popup.parseFilmToData(film),
+    );
   }
 
   getTemplate() {
-    return createPopupTemplate(this._film);
+    return createPopupTemplate(this._data);
   }
 
   _closeClickHandler(evt) {
@@ -160,6 +164,34 @@ export default class Popup extends AbstractView {
 
   _watchlistClickHandler() {
     this._callback.watchlistClick();
+  }
+
+  _commentTextInputHandler(evt) {
+    evt.preventDefault();
+    this.updateData({
+      newComment: evt.target.value,
+    }, true);
+  }
+
+  _commentEmotionChangeHandler(evt) {
+    evt.preventDefault();
+    if (this._data.emotionType === evt.target.value) {
+      return;
+    }
+
+    if (evt.target.tagName === 'INPUT') {
+      this.updateData({
+        emotionType: evt.target.value,
+      });
+    }
+
+    this.getElement().scrollTo(0, this._data.scrollPosition);
+  }
+
+  _scrollPopupHandler(evt) {
+    this.updateData({
+      scrollPosition: evt.target.scrollTop,
+    }, true);
   }
 
   setCloseClickHandler(callback) {
@@ -182,4 +214,52 @@ export default class Popup extends AbstractView {
     this.getElement().querySelector('.film-details__control-button--watchlist').addEventListener('click', this._watchlistClickHandler);
   }
 
+  _setInnerHandlers() {
+    this.getElement().querySelector('.film-details__comment-input').addEventListener('input', this._commentTextInputHandler);
+    this.getElement().querySelector('.film-details__emoji-list').addEventListener('change', this._commentEmotionChangeHandler);
+    this.getElement().addEventListener('scroll', this._scrollPopupHandler);
+  }
+
+  restoreHandlers() {
+    this._setInnerHandlers();
+    this.setCloseClickHandler(this._callback.closeClick);
+    this.setFavoriteClickHandler(this._callback.favoriteClick);
+    this.setAlreadyWatchedClickHandler(this._callback.alreadyWatchedClick);
+    this.setWatchlistClickHandler(this._callback.watchlistClick);
+  }
+
+  static parseFilmToData(film) {
+    return Object.assign(
+      {},
+      film,
+      {
+        isComments: film.comments.length !== null,
+        newComment: '',
+        emotionType: null,
+        scrollPosition: 0,
+      },
+    );
+  }
+
+  static parseDataToFilm(data) {
+    data = Object.assign({}, data);
+
+    if (!data.isComments) {
+      data.comments = null;
+    }
+
+    if (!data.newComment) {
+      data.newComment = '';
+    }
+
+    if (!data.emotionType) {
+      data.emotionType = null;
+    }
+
+    delete data.isComments;
+    delete data.newComment;
+    delete data.emotionType;
+
+    return data;
+  }
 }
