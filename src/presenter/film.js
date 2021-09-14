@@ -1,6 +1,8 @@
 import {render, remove, replace} from '../utils/render.js';
 import FilmCardView from '../view/film-card.js';
 import PopupView from '../view/popup.js';
+import {UserAction, UpdateType} from '../const.js';
+
 
 const Mode = {
   DEFAULT: 'DEFAULT',
@@ -24,6 +26,8 @@ export default class Film {
     this._handleFavoriteClick = this._handleFavoriteClick.bind(this);
     this._handleAlreadyWatchedClick = this._handleAlreadyWatchedClick.bind(this);
     this._handleWatchlistClick = this._handleWatchlistClick.bind(this);
+    this._handleCommentDeleteClick = this._handleCommentDeleteClick.bind(this);
+    this._handleAddComment = this._handleAddComment.bind(this);
   }
 
   init(film) {
@@ -44,7 +48,11 @@ export default class Film {
       return;
     }
 
-    if (this._filmContainer.getElement().contains(prevFilmComponent.getElement())) {
+    /* if (this._filmContainer.getElement().contains(prevFilmComponent.getElement())) {
+      replace(this._filmComponent, prevFilmComponent);
+    } */
+
+    if (this._mode === Mode.DEFAULT) {
       replace(this._filmComponent, prevFilmComponent);
     }
 
@@ -67,6 +75,7 @@ export default class Film {
   }
 
   _openPopup() {
+    console.log(this._mode);
     this._changeMode();
 
     this._popupComponent = new PopupView(this._film);
@@ -74,8 +83,11 @@ export default class Film {
     this._popupComponent.setFavoriteClickHandler(this._handleFavoriteClick);
     this._popupComponent.setAlreadyWatchedClickHandler(this._handleAlreadyWatchedClick);
     this._popupComponent.setWatchlistClickHandler(this._handleWatchlistClick);
+    this._popupComponent.setCommentDeleteClickHandler(this._handleCommentDeleteClick);
+    this._popupComponent.setAddCommentHandler(this._handleAddComment);
 
     render(this._popupContainer, this._popupComponent);
+    console.log('render');
     this._popupContainer.classList.add('hide-overflow');
     document.addEventListener('keydown', this._onDocumentKeydown);
 
@@ -106,15 +118,55 @@ export default class Film {
   }
 
   _handleFavoriteClick() {
-    this._changeData(Object.assign({}, this._film, {userDetails: {...this._film.userDetails, favorite: !this._film.userDetails.favorite}}));
+    this._changeData(
+      UserAction.UPDATE_FILM,
+      UpdateType.MINOR,
+      Object.assign(
+        {},
+        this._film,
+        this._film.userDetails.favorite = !this._film.userDetails.favorite,
+      ),
+    );
   }
 
   _handleAlreadyWatchedClick() {
-    this._changeData(Object.assign({}, this._film, {userDetails: {...this._film.userDetails, alreadyWatched: !this._film.userDetails.alreadyWatched}}));
+    this._changeData(
+      UserAction.UPDATE_FILM,
+      UpdateType.MINOR,
+      Object.assign(
+        {},
+        this._film,
+        this._film.userDetails.alreadyWatched = !this._film.userDetails.alreadyWatched,
+      ),
+    );
   }
 
   _handleWatchlistClick() {
-    this._changeData(Object.assign({}, this._film, {userDetails: {...this._film.userDetails, watchlist: !this._film.userDetails.watchlist}}));
+    this._changeData(
+      UserAction.UPDATE_FILM,
+      UpdateType.MINOR,
+      Object.assign(
+        {},
+        this._film,
+        this._film.userDetails.watchlist = !this._film.userDetails.watchlist,
+      ),
+    );
+  }
+
+  _handleCommentDeleteClick(update) {
+    this._changeData(
+      UserAction.UPDATE_FILM,
+      UpdateType.PATCH,
+      update,
+    );
+  }
+
+  _handleAddComment(update) {
+    this._changeData(
+      UserAction.UPDATE_FILM,
+      UpdateType.PATCH,
+      update,
+    );
   }
 
 }
