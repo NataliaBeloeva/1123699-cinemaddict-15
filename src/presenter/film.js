@@ -48,11 +48,7 @@ export default class Film {
       return;
     }
 
-    /* if (this._filmContainer.getElement().contains(prevFilmComponent.getElement())) {
-      replace(this._filmComponent, prevFilmComponent);
-    } */
-
-    if (this._mode === Mode.DEFAULT) {
+    if (this._filmContainer.getElement().contains(prevFilmComponent.getElement())) {
       replace(this._filmComponent, prevFilmComponent);
     }
 
@@ -75,7 +71,6 @@ export default class Film {
   }
 
   _openPopup() {
-    console.log(this._mode);
     this._changeMode();
 
     this._popupComponent = new PopupView(this._film);
