@@ -16,7 +16,7 @@ const footerElement = bodyElement.querySelector('.footer');
 const footerStatisticsElement = footerElement.querySelector('.footer__statistics');
 
 
-const films = new Array(FILMS_TOTAL).fill(null).map((_, idx) => generateCard(idx));
+const films = new Array(FILMS_TOTAL).fill(null).map((item, idx) => generateCard(idx));
 
 
 const filmsModel = new FilmsModel();

@@ -98,22 +98,15 @@ export default class Films {
     });
   } */
 
-  _handleViewAction(actionType, updateType, update, comment) {
-    //console.log(update);
+  _handleViewAction(actionType, updateType, update, mode) {
     switch (actionType) {
       case UserAction.UPDATE_FILM:
-        this._filmsModel.updateFilm(updateType, update);
-        break;
-      case UserAction.ADD_COMMENT:
-        this._filmsModel.addComment(updateType, update, comment);
-        break;
-      case UserAction.DELETE_COMMENT:
-        this._filmsModel.deleteComment(updateType, update, comment);
+        this._filmsModel.updateFilm(updateType, update, mode);
         break;
     }
   }
 
-  _handleModelEvent(updateType, data) {
+  _handleModelEvent(updateType, data, mode) {
     switch (updateType) {
       case UpdateType.PATCH:
         // - обновить часть списка (например, когда поменялось описание)
@@ -122,7 +115,7 @@ export default class Films {
       case UpdateType.MINOR:
         // - обновить список (например, когда задача ушла в архив)
         this._clearBoard();
-        this._renderBoard();
+        this._renderBoard(mode);
         break;
       case UpdateType.MAJOR:
         // - обновить всю доску (например, при переключении фильтра)
@@ -158,9 +151,9 @@ export default class Films {
     render(this._filmsComponent, this._sortComponent, RenderPosition.BEFOREBEGIN);
   }
 
-  _renderFilm(film, container, presenter) {
+  _renderFilm(film, container, presenter, mode) {
     const filmPresenter = new FilmPresenter(container, this._handleViewAction, this._handleModeChange);
-    filmPresenter.init(film);
+    filmPresenter.init(film, mode);
     presenter.set(film.id, filmPresenter);
   }
 
@@ -168,8 +161,8 @@ export default class Films {
     this._films.slice(from, to).forEach((film) => this._renderFilm(film, this._filmsContainerComponent, this._filmPresenter));
   } */
 
-  _renderFilms(films) {
-    films.forEach((film) => this._renderFilm(film, this._filmsContainerComponent, this._filmPresenter));
+  _renderFilms(films, mode) {
+    films.forEach((film) => this._renderFilm(film, this._filmsContainerComponent, this._filmPresenter, mode));
   }
 
   _renderRatedFilms(from, to) {
@@ -208,31 +201,6 @@ export default class Films {
     render(this._filmsListComponent, this._showMoreComponent);
   }
 
-  /* _clearFilmList() {
-    this._getFilmPresenters().map((presenter) => presenter.forEach((item) => item.destroy()));
-    this._getFilmPresenters().forEach((presenter) => presenter.clear());
-
-    this._renderedFilmCount = FILM_COUNT_PER_STEP;
-    remove(this._showMoreComponent);
-  } */
-
-  /* _renderFilmList() {
-    render(this._filmsContainer, this._filmsComponent);
-    render(this._filmsComponent, this._filmsListComponent);
-    render(this._filmsListComponent, this._filmsContainerComponent);
-
-    //this._renderFilms(0, Math.min(this._films.length, FILM_COUNT_PER_STEP));
-
-    const filmCount = this._getFilms().length;
-    const films = this._getFilms().slice(0, Math.min(filmCount, FILM_COUNT_PER_STEP));
-
-    this._renderFilms(films);
-
-    if (filmCount > FILM_COUNT_PER_STEP) {
-      this._renderShowMore();
-    }
-  } */
-
   _renderRatedFilmList() {
     render(this._filmsComponent, this._filmsRatedListComponent);
     render(this._filmsRatedListComponent, this._filmsRatedContainerComponent);
@@ -247,7 +215,6 @@ export default class Films {
 
   _clearBoard({resetRenderedFilmCount = false, resetSortType = false} = {}) {
     const filmCount = this._getFilms().length;
-
     this._filmPresenter.forEach((presenter) => presenter.destroy());
     this._filmPresenter.clear();
 
@@ -275,7 +242,7 @@ export default class Films {
     }
   }
 
-  _renderBoard() {
+  _renderBoard(mode) {
     const films = this._getFilms();
     const filmCount = films.length;
 
@@ -289,7 +256,7 @@ export default class Films {
     render(this._filmsListComponent, this._filmsContainerComponent);
 
     this._renderSort();
-    this._renderFilms(films.slice(0, Math.min(filmCount, this._renderedFilmCount)));
+    this._renderFilms(films.slice(0, Math.min(filmCount, this._renderedFilmCount)), mode);
 
     if (filmCount > this._renderedFilmCount) {
       this._renderShowMore();

@@ -38,7 +38,7 @@ const createPopupTemplate = (film) => {
   const filmDate = humanizeDatePopup(film.filmInfo.release.date);
   const filmRuntime = humanizeRuntime(film.filmInfo.runtime);
 
-  return `<section class="film-details">
+  return `<section class="film-details data-id="${film.id}">
     <form class="film-details__inner" action="" method="get">
       <div class="film-details__top-container">
         <div class="film-details__close">
@@ -162,26 +162,16 @@ export default class Popup extends SmartView {
 
   _favoriteClickHandler() {
     this._callback.favoriteClick();
-    /* this.updateData({
-      favorite: this._data.userDetails.favorite,
-    }); */
     this.getElement().scrollTo(0, this._data.scrollPosition);
   }
 
   _alreadyWatchedClickHandler() {
     this._callback.alreadyWatchedClick();
-    /* this.updateData({
-      alreadyWatched: this._data.userDetails.alreadyWatched,
-    }); */
     this.getElement().scrollTo(0, this._data.scrollPosition);
   }
 
   _watchlistClickHandler() {
     this._callback.watchlistClick();
-   /*  this.updateData({
-      watchlist: this._data.userDetails.watchlist,
-    }); */
-
     this.getElement().scrollTo(0, this._data.scrollPosition);
   }
 
@@ -194,9 +184,6 @@ export default class Popup extends SmartView {
 
   _commentEmotionChangeHandler(evt) {
     evt.preventDefault();
-    if (this._data.emotionType === evt.target.value) {
-      return;
-    }
 
     if (evt.target.tagName === 'INPUT') {
       this.updateData({
@@ -225,18 +212,13 @@ export default class Popup extends SmartView {
   }
 
   _keyDownCtrlEnterHandler(evt) {
-    if (evt.key === 'Enter' && (evt.metaKey || evt.ctrlKey)) {
-      const textarea = this.getElement().querySelector('.film-details__comment-input');
-      const emotion = this.getElement().querySelector('#user-emoji');
-      const comment = textarea.value;
-      const chosenEmotion =  emotion.value;
-
+    if (evt.key === 'Enter' && (evt.metaKey || evt.ctrlKey) && this._data.emotionType && this._data.newComment) {
       const commentToAdd = {
         id: getRandomUniqueInteger(0, 1000),
         author: 'Натали',
-        comment: comment,
+        comment: this._data.newComment,
         date: humanizeDate(generateDate()),
-        emotion: chosenEmotion,
+        emotion: this._data.emotionType,
       };
 
       this._comments = [...this._comments, commentToAdd];
@@ -246,7 +228,7 @@ export default class Popup extends SmartView {
       });
 
       document.removeEventListener('keydown', this._keyDownCtrlEnterHandler);
-      this._callback.addComment(this._data);
+      this._callback.addComment(Popup.parseDataToFilm(this._data));
     }
   }
 
