@@ -52,7 +52,17 @@ export default class Film {
     this._popupComponent.setCommentDeleteClickHandler(this._handleCommentsUpdate);
     this._popupComponent.setAddCommentHandler(this._handleCommentsUpdate);
 
-    if (prevFilmComponent === null || prevPopupComponent === null) {
+    if (this._mode === Mode.POPUP) {
+      const popup = document.querySelector('.film-details');
+      const filmIndex = this._film.id;
+      const popupIndex = parseInt(popup.dataset.id, 10);
+      if (filmIndex === popupIndex) {
+        popup.remove();
+        render(this._popupContainer, this._popupComponent);
+      }
+    }
+
+    if (prevFilmComponent === null && prevPopupComponent === null) {
       render(this._filmContainer, this._filmComponent);
       return;
     }

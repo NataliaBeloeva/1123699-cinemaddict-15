@@ -1,4 +1,5 @@
 import SmartView from './smart.js';
+import he from 'he';
 import {generateDate, humanizeDate, humanizeDatePopup, humanizeRuntime} from '../utils/film.js';
 import {getRandomUniqueInteger} from '../utils/common.js';
 import {EMOTIONS} from '../const.js';
@@ -13,7 +14,7 @@ const createCommentTemplate = (message) => {
       <img src="./images/emoji/${emotion}.png" width="55" height="55" alt="emoji-smile">
     </span>
     <div>
-      <p class="film-details__comment-text">${comment}</p>
+      <p class="film-details__comment-text">${he.encode(comment)}</p>
       <p class="film-details__comment-info">
         <span class="film-details__comment-author">${author}</span>
         <span class="film-details__comment-day">${date}</span>
@@ -38,7 +39,7 @@ const createPopupTemplate = (film) => {
   const filmDate = humanizeDatePopup(film.filmInfo.release.date);
   const filmRuntime = humanizeRuntime(film.filmInfo.runtime);
 
-  return `<section class="film-details data-id="${film.id}">
+  return `<section class="film-details" data-id="${film.id}">
     <form class="film-details__inner" action="" method="get">
       <div class="film-details__top-container">
         <div class="film-details__close">
@@ -146,6 +147,7 @@ export default class Popup extends SmartView {
   }
 
   reset(film) {
+    console.log(film);
     this.updateData(
       Popup.parseFilmToData(film),
     );
