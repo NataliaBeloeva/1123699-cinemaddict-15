@@ -52,11 +52,6 @@ export default class Film {
     this._popupComponent.setCommentDeleteClickHandler(this._handleCommentsUpdate);
     this._popupComponent.setAddCommentHandler(this._handleCommentsUpdate);
 
-    console.log(this._mode);
-    if (this._mode === Mode.POPUP) {
-
-    }
-
     if (prevFilmComponent === null || prevPopupComponent === null) {
       render(this._filmContainer, this._filmComponent);
       return;
@@ -78,7 +73,6 @@ export default class Film {
 
   destroy() {
     remove(this._filmComponent);
-    //remove(this._popupComponent);
   }
 
   resetView() {
@@ -122,22 +116,22 @@ export default class Film {
     this._closePopup();
   }
 
-  _handleFavoriteClick() {
-    this._updateControls(this._film.userDetails, 'favorite', !this._film.userDetails.favorite, this._mode);
+  _handleFavoriteClick(film) {
+    this._updateControls(film, film.userDetails, 'favorite', !film.userDetails.favorite, this._mode);
   }
 
-  _handleAlreadyWatchedClick() {
-    this._updateControls(this._film.userDetails, 'alreadyWatched', !this._film.userDetails.alreadyWatched, this._mode);
+  _handleAlreadyWatchedClick(film) {
+    this._updateControls(film, film.userDetails, 'alreadyWatched', !film.userDetails.alreadyWatched, this._mode);
   }
 
-  _handleWatchlistClick() {
-    this._updateControls(this._film.userDetails, 'watchlist', !this._film.userDetails.watchlist, this._mode);
+  _handleWatchlistClick(film) {
+    this._updateControls(film, film.userDetails, 'watchlist', !film.userDetails.watchlist, this._mode);
   }
 
-  _updateControls(object, property, value, mode) {
+  _updateControls(film, object, property, value, mode) {
     const newData = Object.assign(
       {},
-      this._film,
+      film,
       object[property] = value,
     );
     this._changeData(
@@ -147,7 +141,6 @@ export default class Film {
       mode,
     );
     this._popupComponent.updateData(newData);
-
   }
 
   _handleCommentsUpdate(update) {
@@ -155,6 +148,7 @@ export default class Film {
       UserAction.UPDATE_FILM,
       UpdateType.PATCH,
       update,
+      Mode.POPUP,
     );
   }
 }

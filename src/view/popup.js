@@ -161,17 +161,17 @@ export default class Popup extends SmartView {
   }
 
   _favoriteClickHandler() {
-    this._callback.favoriteClick();
+    this._callback.favoriteClick(Popup.parseDataToFilm(this._data));
     this.getElement().scrollTo(0, this._data.scrollPosition);
   }
 
   _alreadyWatchedClickHandler() {
-    this._callback.alreadyWatchedClick();
+    this._callback.alreadyWatchedClick(Popup.parseDataToFilm(this._data));
     this.getElement().scrollTo(0, this._data.scrollPosition);
   }
 
   _watchlistClickHandler() {
-    this._callback.watchlistClick();
+    this._callback.watchlistClick(Popup.parseDataToFilm(this._data));
     this.getElement().scrollTo(0, this._data.scrollPosition);
   }
 

@@ -110,7 +110,7 @@ export default class Films {
     switch (updateType) {
       case UpdateType.PATCH:
         // - обновить часть списка (например, когда поменялось описание)
-        this._filmPresenter.get(data.id).init(data);
+        this._filmPresenter.get(data.id).init(data, mode);
         break;
       case UpdateType.MINOR:
         // - обновить список (например, когда задача ушла в архив)
