@@ -147,7 +147,6 @@ export default class Popup extends SmartView {
   }
 
   reset(film) {
-    console.log(film);
     this.updateData(
       Popup.parseFilmToData(film),
     );

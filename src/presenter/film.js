@@ -29,10 +29,11 @@ export default class Film {
     this._handleCommentsUpdate = this._handleCommentsUpdate.bind(this);
   }
 
-  init(film, mode) {
+  init(film, updateType, mode) {
     this._film = film;
     this._popupContainer = document.body;
     this._mode = mode;
+    this._updateType = updateType;
 
     const prevFilmComponent = this._filmComponent;
     const prevPopupComponent = this._popupComponent;
@@ -52,28 +53,34 @@ export default class Film {
     this._popupComponent.setCommentDeleteClickHandler(this._handleCommentsUpdate);
     this._popupComponent.setAddCommentHandler(this._handleCommentsUpdate);
 
-    if (this._mode === Mode.POPUP) {
-      const popup = document.querySelector('.film-details');
-      const filmIndex = this._film.id;
-      const popupIndex = parseInt(popup.dataset.id, 10);
-      if (filmIndex === popupIndex) {
-        popup.remove();
-        render(this._popupContainer, this._popupComponent);
-      }
-    }
-
-    if (prevFilmComponent === null && prevPopupComponent === null) {
+    if (prevFilmComponent === null) {
       render(this._filmContainer, this._filmComponent);
-      return;
+      //return;
     }
 
     if (this._mode === Mode.DEFAULT) {
       replace(this._filmComponent, prevFilmComponent);
     }
 
-    if (this._mode === Mode.POPUP) {
+    if (this._mode === Mode.POPUP && this._updateType === UpdateType.MINOR) {
+      const popup = document.querySelector('.film-details');
+      const filmIndex = this._film.id;
+      const popupIndex = parseInt(popup.dataset.id, 10);
+      if (filmIndex === popupIndex) {
+        this._openPopup();
+      }
+    }
+
+    if (this._mode === Mode.POPUP && this._updateType === UpdateType.PATCH) {
       replace(this._filmComponent, prevFilmComponent);
       replace(this._popupComponent, prevPopupComponent);
+    }
+
+    if (this._updateType === UpdateType.MAJOR) {
+      const popup = document.querySelector('.film-details');
+      if (popup) {
+        this._closePopup();
+      }
     }
 
     remove(prevFilmComponent);
@@ -150,7 +157,7 @@ export default class Film {
       newData,
       mode,
     );
-    this._popupComponent.updateData(newData);
+    this._popupComponent.updateData(newData, true);
   }
 
   _handleCommentsUpdate(update) {

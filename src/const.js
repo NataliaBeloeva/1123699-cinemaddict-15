@@ -29,3 +29,8 @@ export const FilterType = {
   HISTORY: 'areadyWatched',
   FAVORITES: 'favorites',
 };
+
+export const MenuItem = {
+  FILMS: 'FILMS',
+  STATISTICS: 'STATISTICS',
+};

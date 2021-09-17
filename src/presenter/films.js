@@ -49,8 +49,6 @@ export default class Films {
     this._handleShowMoreClick = this._handleShowMoreClick.bind(this);
     this._handleSortTypeChange = this._handleSortTypeChange.bind(this);
 
-    this._filmsModel.addObserver(this._handleModelEvent);
-    this._filterModel.addObserver(this._handleModelEvent);
   }
 
   init() {
@@ -59,7 +57,17 @@ export default class Films {
     //this._ratedFilms = films.slice().sort(sortFilmByRating);
     //this._commentedFilms = films.slice().sort(sortFilmByComments);
 
+    this._filmsModel.addObserver(this._handleModelEvent);
+    this._filterModel.addObserver(this._handleModelEvent);
+
     this._renderBoard();
+  }
+
+  destroy() {
+    this._clearBoard({resetRenderedFilmCount: true, resetSortType: true});
+
+    this._filmsModel.removeObserver(this._handleModelEvent);
+    this._filterModel.removeObserver(this._handleModelEvent);
   }
 
   _getFilms() {
@@ -110,17 +118,17 @@ export default class Films {
     switch (updateType) {
       case UpdateType.PATCH:
         // - обновить часть списка (например, когда поменялось описание)
-        this._filmPresenter.get(data.id).init(data, mode);
+        this._filmPresenter.get(data.id).init(data, updateType, mode);
         break;
       case UpdateType.MINOR:
         // - обновить список (например, когда задача ушла в архив)
         this._clearBoard();
-        this._renderBoard(mode);
+        this._renderBoard(updateType, mode);
         break;
       case UpdateType.MAJOR:
         // - обновить всю доску (например, при переключении фильтра)
         this._clearBoard({resetRenderedFilmCount: true, resetSortType: true});
-        this._renderBoard();
+        this._renderBoard(updateType, mode);
         break;
     }
   }
@@ -151,9 +159,9 @@ export default class Films {
     render(this._filmsComponent, this._sortComponent, RenderPosition.BEFOREBEGIN);
   }
 
-  _renderFilm(film, container, presenter, mode) {
+  _renderFilm(film, container, presenter, updateType, mode) {
     const filmPresenter = new FilmPresenter(container, this._handleViewAction, this._handleModeChange);
-    filmPresenter.init(film, mode);
+    filmPresenter.init(film, updateType, mode);
     presenter.set(film.id, filmPresenter);
   }
 
@@ -161,8 +169,8 @@ export default class Films {
     this._films.slice(from, to).forEach((film) => this._renderFilm(film, this._filmsContainerComponent, this._filmPresenter));
   } */
 
-  _renderFilms(films, mode) {
-    films.forEach((film) => this._renderFilm(film, this._filmsContainerComponent, this._filmPresenter, mode));
+  _renderFilms(films, updateType, mode) {
+    films.forEach((film) => this._renderFilm(film, this._filmsContainerComponent, this._filmPresenter, updateType, mode));
   }
 
   _renderRatedFilms(from, to) {
@@ -242,7 +250,7 @@ export default class Films {
     }
   }
 
-  _renderBoard(mode) {
+  _renderBoard(updateType, mode) {
     const films = this._getFilms();
     const filmCount = films.length;
 
@@ -256,7 +264,7 @@ export default class Films {
     render(this._filmsListComponent, this._filmsContainerComponent);
 
     this._renderSort();
-    this._renderFilms(films.slice(0, Math.min(filmCount, this._renderedFilmCount)), mode);
+    this._renderFilms(films.slice(0, Math.min(filmCount, this._renderedFilmCount)), updateType, mode);
 
     if (filmCount > this._renderedFilmCount) {
       this._renderShowMore();

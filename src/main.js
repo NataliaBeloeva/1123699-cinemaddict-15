@@ -1,4 +1,5 @@
 import {render} from './utils/render.js';
+import {MenuItem} from './const.js';
 import {generateCard} from './mock/film-card.js';
 import ProfileView from './view/profile.js';
 import FilmAmountView from './view/films-amount.js';
@@ -28,7 +29,20 @@ const filmsPresenter = new FilmsPresenter(mainElement, filmsModel, filterModel);
 
 render(headerElement, new ProfileView());
 
-const filterPresenter = new FilterPresenter(mainElement, filterModel, filmsModel);
+const handleMenuClick = (menuItem) => {
+  switch (menuItem) {
+    case MenuItem.FILMS:
+      filmsPresenter.init();
+      // Скрыть статистику
+      break;
+    case MenuItem.STATISTICS:
+      filmsPresenter.destroy();
+      // Показать статистику
+      break;
+  }
+};
+
+const filterPresenter = new FilterPresenter(mainElement, filterModel, filmsModel, handleMenuClick);
 
 filterPresenter.init();
 filmsPresenter.init();

@@ -1,18 +1,21 @@
 import FilterView from '../view/filter.js';
 import {render, RenderPosition, replace, remove} from '../utils/render.js';
 import {filter} from '../utils/filter.js';
-import {FilterType, UpdateType} from '../const.js';
+import {FilterType, UpdateType, MenuItem} from '../const.js';
 
 export default class Filter {
-  constructor(filterContainer, filterModel, filmsModel) {
+  constructor(filterContainer, filterModel, filmsModel, menuClickHandler) {
     this._filterContainer = filterContainer;
     this._filterModel = filterModel;
     this._filmsModel = filmsModel;
+    this._menuClickHandler = menuClickHandler;
+    this._menutype = MenuItem.FILMS;
 
     this._filterComponent = null;
 
     this._handleModelEvent = this._handleModelEvent.bind(this);
     this._handleFilterTypeChange = this._handleFilterTypeChange.bind(this);
+    this._handleMenuTypeChange = this._handleMenuTypeChange.bind(this);
 
     this._filmsModel.addObserver(this._handleModelEvent);
     this._filterModel.addObserver(this._handleModelEvent);
@@ -24,6 +27,7 @@ export default class Filter {
 
     this._filterComponent = new FilterView(filters, this._filterModel.getFilter());
     this._filterComponent.setFilterTypeChangeHandler(this._handleFilterTypeChange);
+    this._filterComponent.setMenuTypeChangeHandler(this._handleMenuTypeChange);
 
     if (prevFilterComponent === null) {
       render(this._filterContainer, this._filterComponent, RenderPosition.BEFOREEND);
@@ -44,6 +48,16 @@ export default class Filter {
     }
 
     this._filterModel.setFilter(UpdateType.MAJOR, filterType);
+  }
+
+  _handleMenuTypeChange(menutype) {
+    if (this._menutype === menutype) {
+      return;
+    }
+
+    this._menutype = menutype;
+    this.init();
+    this._menuClickHandler(menutype);
   }
 
   _getFilters() {
