@@ -34,3 +34,11 @@ export const MenuItem = {
   FILMS: 'FILMS',
   STATISTICS: 'STATISTICS',
 };
+
+export const StatsPeriod = {
+  ALLTIME: 36500,
+  TODAY: 1,
+  WEEK: 6,
+  MOUNTH: 30,
+  YEAR: 365,
+};

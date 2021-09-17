@@ -44,7 +44,6 @@ export default class Films {
     this._handleViewAction = this._handleViewAction.bind(this);
     this._handleModelEvent = this._handleModelEvent.bind(this);
 
-    //this._handleFilmChange = this._handleFilmChange.bind(this);
     this._handleModeChange = this._handleModeChange.bind(this);
     this._handleShowMoreClick = this._handleShowMoreClick.bind(this);
     this._handleSortTypeChange = this._handleSortTypeChange.bind(this);
@@ -52,11 +51,6 @@ export default class Films {
   }
 
   init() {
-    //this._films = films.slice();
-    //this._sourcedFilms = films.slice();
-    //this._ratedFilms = films.slice().sort(sortFilmByRating);
-    //this._commentedFilms = films.slice().sort(sortFilmByComments);
-
     this._filmsModel.addObserver(this._handleModelEvent);
     this._filterModel.addObserver(this._handleModelEvent);
 
@@ -92,20 +86,6 @@ export default class Films {
     this._getFilmPresenters().map((presenter) => presenter.forEach((item) => item.resetView()));
   }
 
-  /* _handleFilmChange(updatedFilm) {
-    //this._films = updateItem(this._films, updatedFilm);
-    //this._sourcedFilms = updateItem(this._sourcedFilms, updatedFilm);
-    //this._ratedFilms = updateItem(this._ratedFilms, updatedFilm);
-    //this._commentedFilms = updateItem(this._commentedFilms, updatedFilm);
-
-    // Здесь будем вызывать обновление модели
-    this._getFilmPresenters().map((presenter) => {
-      if (presenter.has(updatedFilm.id)) {
-        presenter.get(updatedFilm.id).init(updatedFilm);
-      }
-    });
-  } */
-
   _handleViewAction(actionType, updateType, update, mode) {
     switch (actionType) {
       case UserAction.UPDATE_FILM:
@@ -117,16 +97,13 @@ export default class Films {
   _handleModelEvent(updateType, data, mode) {
     switch (updateType) {
       case UpdateType.PATCH:
-        // - обновить часть списка (например, когда поменялось описание)
         this._filmPresenter.get(data.id).init(data, updateType, mode);
         break;
       case UpdateType.MINOR:
-        // - обновить список (например, когда задача ушла в архив)
         this._clearBoard();
         this._renderBoard(updateType, mode);
         break;
       case UpdateType.MAJOR:
-        // - обновить всю доску (например, при переключении фильтра)
         this._clearBoard({resetRenderedFilmCount: true, resetSortType: true});
         this._renderBoard(updateType, mode);
         break;
@@ -142,11 +119,6 @@ export default class Films {
 
     this._clearBoard({resetRenderedFilmCount: true});
     this._renderBoard();
-
-    //this._clearFilmList();
-    //this._renderFilmList();
-    //this._renderRatedFilmList();
-    //this._renderCommentedFilmList();
   }
 
   _renderSort() {
@@ -164,10 +136,6 @@ export default class Films {
     filmPresenter.init(film, updateType, mode);
     presenter.set(film.id, filmPresenter);
   }
-
-  /* _renderFilms(from, to) {
-    this._films.slice(from, to).forEach((film) => this._renderFilm(film, this._filmsContainerComponent, this._filmPresenter));
-  } */
 
   _renderFilms(films, updateType, mode) {
     films.forEach((film) => this._renderFilm(film, this._filmsContainerComponent, this._filmPresenter, updateType, mode));
@@ -239,9 +207,6 @@ export default class Films {
     if (resetRenderedFilmCount) {
       this._renderedFilmCount = FILM_COUNT_PER_STEP;
     } else {
-      // На случай, если перерисовка доски вызвана
-      // уменьшением количества задач (например, удаление или перенос в архив)
-      // нужно скорректировать число показанных задач
       this._renderedFilmCount = Math.min(filmCount, this._renderedFilmCount);
     }
 
@@ -269,10 +234,6 @@ export default class Films {
     if (filmCount > this._renderedFilmCount) {
       this._renderShowMore();
     }
-
-    //this._renderFilmList();
-    //this._renderRatedFilmList();
-    //this._renderCommentedFilmList();
   }
 }
 

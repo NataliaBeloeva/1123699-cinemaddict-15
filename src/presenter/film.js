@@ -3,7 +3,6 @@ import FilmCardView from '../view/film-card.js';
 import PopupView from '../view/popup.js';
 import {UserAction, UpdateType} from '../const.js';
 
-
 const Mode = {
   DEFAULT: 'DEFAULT',
   POPUP: 'POPUP',
@@ -55,7 +54,6 @@ export default class Film {
 
     if (prevFilmComponent === null) {
       render(this._filmContainer, this._filmComponent);
-      //return;
     }
 
     if (this._mode === Mode.DEFAULT) {

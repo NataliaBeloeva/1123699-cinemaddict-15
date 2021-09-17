@@ -14,3 +14,5 @@ export const sortFilmByDate = (filmA, filmB) => dayjs(filmB.filmInfo.release.dat
 export const sortFilmByRating = (filmA, filmB) => filmB.filmInfo.totalRating - filmA.filmInfo.totalRating;
 export const sortFilmByComments = (filmA, filmB) => filmB.comments.length - filmA.comments.length;
 export const humanizeRuntime = (time) => `${Math.floor(time / 60)}h ${time % 60}m`;
+export const isDateToday = (date) => dayjs(date).isToday();
+
