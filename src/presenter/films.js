@@ -1,5 +1,5 @@
 import {render, remove, RenderPosition} from '../utils/render.js';
-import {sortFilmByDate, sortFilmByRating, sortFilmByComments} from '../utils/film.js';
+import {sortFilmByDate, sortFilmByRating} from '../utils/film.js';
 import {filter} from '../utils/filter.js';
 import {SortType, FilmTitle, UserAction, UpdateType, FilterType} from '../const.js';
 import FilmsView from '../view/films.js';
