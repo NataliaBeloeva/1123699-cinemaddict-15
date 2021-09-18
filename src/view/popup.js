@@ -1,5 +1,7 @@
 import SmartView from './smart.js';
-import {humanizeDatePopup, humanizeRuntime} from '../utils/film.js';
+import he from 'he';
+import {generateDate, humanizeDate, humanizeDatePopup, humanizeRuntime} from '../utils/film.js';
+import {getRandomUniqueInteger} from '../utils/common.js';
 import {EMOTIONS} from '../const.js';
 
 const createGenreTemplate = (genre) => `<span class="film-details__genre">${genre}</span>`;
@@ -12,11 +14,11 @@ const createCommentTemplate = (message) => {
       <img src="./images/emoji/${emotion}.png" width="55" height="55" alt="emoji-smile">
     </span>
     <div>
-      <p class="film-details__comment-text">${comment}</p>
+      <p class="film-details__comment-text">${he.encode(comment)}</p>
       <p class="film-details__comment-info">
         <span class="film-details__comment-author">${author}</span>
         <span class="film-details__comment-day">${date}</span>
-        <button class="film-details__comment-delete">Delete</button>
+        <button class="film-details__comment-delete" data-id="${id}">Delete</button>
       </p>
     </div>
   </li>`;
@@ -37,7 +39,7 @@ const createPopupTemplate = (film) => {
   const filmDate = humanizeDatePopup(film.filmInfo.release.date);
   const filmRuntime = humanizeRuntime(film.filmInfo.runtime);
 
-  return `<section class="film-details">
+  return `<section class="film-details" data-id="${film.id}">
     <form class="film-details__inner" action="" method="get">
       <div class="film-details__top-container">
         <div class="film-details__close">
@@ -106,9 +108,11 @@ const createPopupTemplate = (film) => {
       <div class="film-details__bottom-container">
         <section class="film-details__comments-wrap">
           <h3 class="film-details__comments-title">Comments <span class="film-details__comments-count">${film.comments.length}</span></h3>
-          ${film.isComments ? `<ul class="film-details__comments-list">${generateComments(film.comments)}</ul>` : ''}
+          ${film.comments.length ? `<ul class="film-details__comments-list">${generateComments(film.comments)}</ul>` : ''}
           <div class="film-details__new-comment">
-            <div class="film-details__add-emoji-label">${film.emotionType ? `<img src="images/emoji/${film.emotionType}.png" width="55" height="55" alt="emoji-${film.emotionType}">` : ''}</div>
+            <div class="film-details__add-emoji-label">
+              ${film.emotionType ? `<img src="images/emoji/${film.emotionType}.png" width="55" height="55" alt="emoji-${film.emotionType}"> <input name="user-emoji" type="hidden" id="user-emoji" value="${film.emotionType}">` : ''}
+            </div>
             <label class="film-details__comment-label">
               <textarea class="film-details__comment-input" placeholder="Select reaction below and write comment here" name="comment">${film.newComment}</textarea>
             </label>
@@ -126,12 +130,15 @@ export default class Popup extends SmartView {
   constructor(film) {
     super();
     this._data = Popup.parseFilmToData(film);
+    this._comments = this._data.comments;
 
     this._closeClickHandler = this._closeClickHandler.bind(this);
     this._favoriteClickHandler = this._favoriteClickHandler.bind(this);
     this._alreadyWatchedClickHandler = this._alreadyWatchedClickHandler.bind(this);
     this._watchlistClickHandler = this._watchlistClickHandler.bind(this);
 
+    this._commentDeleteClickHandler = this._commentDeleteClickHandler.bind(this);
+    this._keyDownCtrlEnterHandler = this._keyDownCtrlEnterHandler.bind(this);
     this._commentTextInputHandler = this._commentTextInputHandler.bind(this);
     this._commentEmotionChangeHandler = this._commentEmotionChangeHandler.bind(this);
     this._scrollPopupHandler = this._scrollPopupHandler.bind(this);
@@ -155,15 +162,18 @@ export default class Popup extends SmartView {
   }
 
   _favoriteClickHandler() {
-    this._callback.favoriteClick();
+    this._callback.favoriteClick(Popup.parseDataToFilm(this._data));
+    this.getElement().scrollTo(0, this._data.scrollPosition);
   }
 
   _alreadyWatchedClickHandler() {
-    this._callback.alreadyWatchedClick();
+    this._callback.alreadyWatchedClick(Popup.parseDataToFilm(this._data));
+    this.getElement().scrollTo(0, this._data.scrollPosition);
   }
 
   _watchlistClickHandler() {
-    this._callback.watchlistClick();
+    this._callback.watchlistClick(Popup.parseDataToFilm(this._data));
+    this.getElement().scrollTo(0, this._data.scrollPosition);
   }
 
   _commentTextInputHandler(evt) {
@@ -175,9 +185,6 @@ export default class Popup extends SmartView {
 
   _commentEmotionChangeHandler(evt) {
     evt.preventDefault();
-    if (this._data.emotionType === evt.target.value) {
-      return;
-    }
 
     if (evt.target.tagName === 'INPUT') {
       this.updateData({
@@ -188,10 +195,54 @@ export default class Popup extends SmartView {
     this.getElement().scrollTo(0, this._data.scrollPosition);
   }
 
+  _commentDeleteClickHandler(evt) {
+    evt.preventDefault();
+    const commentId = parseInt(evt.target.dataset.id, 10);
+    const index = this._comments.findIndex((comment) => comment.id === commentId);
+
+    this._comments = [
+      ...this._comments.slice(0, index),
+      ...this._comments.slice(index + 1),
+    ];
+
+    this.updateData({
+      comments: this._comments,
+    });
+
+    this._callback.commentDeleteClick(Popup.parseDataToFilm(this._data));
+  }
+
+  _keyDownCtrlEnterHandler(evt) {
+    if (evt.key === 'Enter' && (evt.metaKey || evt.ctrlKey) && this._data.emotionType && this._data.newComment) {
+      const commentToAdd = {
+        id: getRandomUniqueInteger(0, 1000),
+        author: 'Натали',
+        comment: this._data.newComment,
+        date: humanizeDate(generateDate()),
+        emotion: this._data.emotionType,
+      };
+
+      this._comments = [...this._comments, commentToAdd];
+
+      this.updateData({
+        comments: this._comments,
+      });
+
+      document.removeEventListener('keydown', this._keyDownCtrlEnterHandler);
+      this._callback.addComment(Popup.parseDataToFilm(this._data));
+    }
+  }
+
   _scrollPopupHandler(evt) {
     this.updateData({
       scrollPosition: evt.target.scrollTop,
     }, true);
+  }
+
+  _setInnerHandlers() {
+    this.getElement().querySelector('.film-details__comment-input').addEventListener('input', this._commentTextInputHandler);
+    this.getElement().querySelector('.film-details__emoji-list').addEventListener('change', this._commentEmotionChangeHandler);
+    this.getElement().addEventListener('scroll', this._scrollPopupHandler);
   }
 
   setCloseClickHandler(callback) {
@@ -214,10 +265,14 @@ export default class Popup extends SmartView {
     this.getElement().querySelector('.film-details__control-button--watchlist').addEventListener('click', this._watchlistClickHandler);
   }
 
-  _setInnerHandlers() {
-    this.getElement().querySelector('.film-details__comment-input').addEventListener('input', this._commentTextInputHandler);
-    this.getElement().querySelector('.film-details__emoji-list').addEventListener('change', this._commentEmotionChangeHandler);
-    this.getElement().addEventListener('scroll', this._scrollPopupHandler);
+  setCommentDeleteClickHandler(callback) {
+    this._callback.commentDeleteClick = callback;
+    this.getElement().querySelectorAll('.film-details__comment-delete').forEach((comment) => comment.addEventListener('click', this._commentDeleteClickHandler));
+  }
+
+  setAddCommentHandler(callback) {
+    this._callback.addComment = callback;
+    document.addEventListener('keydown', this._keyDownCtrlEnterHandler);
   }
 
   restoreHandlers() {
@@ -226,6 +281,8 @@ export default class Popup extends SmartView {
     this.setFavoriteClickHandler(this._callback.favoriteClick);
     this.setAlreadyWatchedClickHandler(this._callback.alreadyWatchedClick);
     this.setWatchlistClickHandler(this._callback.watchlistClick);
+    this.setCommentDeleteClickHandler(this._callback.commentDeleteClick);
+    this.setAddCommentHandler(this._callback.addComment);
   }
 
   static parseFilmToData(film) {
@@ -233,7 +290,6 @@ export default class Popup extends SmartView {
       {},
       film,
       {
-        isComments: film.comments.length !== null,
         newComment: '',
         emotionType: null,
         scrollPosition: 0,
@@ -244,10 +300,6 @@ export default class Popup extends SmartView {
   static parseDataToFilm(data) {
     data = Object.assign({}, data);
 
-    if (!data.isComments) {
-      data.comments = null;
-    }
-
     if (!data.newComment) {
       data.newComment = '';
     }
@@ -256,7 +308,6 @@ export default class Popup extends SmartView {
       data.emotionType = null;
     }
 
-    delete data.isComments;
     delete data.newComment;
     delete data.emotionType;
 

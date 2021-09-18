@@ -1,7 +1,87 @@
-import AbstractView from './abstract.js';
+import SmartView from './smart.js';
+import dayjs from 'dayjs';
+import Chart from 'chart.js';
+import ChartDataLabels from 'chartjs-plugin-datalabels';
+import {getFilmGenres, makeItemsUnique, getGenresSorted, getFilmsInPeriod, getTotalDuration} from '../utils/stats.js';
+import {StatsPeriod} from '../const.js';
 
-const createStatsTemplate = () => (
-  `<section class="statistic">
+const BAR_HEIGHT = 50;
+
+const renderGenresChart = (genresCtx, films) => {
+  const filmGenres = getFilmGenres(films);
+  const uniqueGenres = makeItemsUnique(filmGenres);
+  const genresSorted = getGenresSorted(uniqueGenres, filmGenres);
+
+  genresCtx.height = BAR_HEIGHT * uniqueGenres.length;
+
+  return new Chart(genresCtx, {
+    plugins: [ChartDataLabels],
+    type: 'horizontalBar',
+    data: {
+      labels: genresSorted.labels,
+      datasets: [{
+        data: genresSorted.data,
+        backgroundColor: '#ffe800',
+        hoverBackgroundColor: '#ffe800',
+        anchor: 'start',
+      }],
+    },
+    options: {
+      plugins: {
+        datalabels: {
+          font: {
+            size: 20,
+          },
+          color: '#ffffff',
+          anchor: 'start',
+          align: 'start',
+          offset: 40,
+        },
+      },
+      scales: {
+        yAxes: [{
+          ticks: {
+            fontColor: '#ffffff',
+            padding: 100,
+            fontSize: 20,
+          },
+          gridLines: {
+            display: false,
+            drawBorder: false,
+          },
+          barThickness: 24,
+        }],
+        xAxes: [{
+          ticks: {
+            display: false,
+            beginAtZero: true,
+          },
+          gridLines: {
+            display: false,
+            drawBorder: false,
+          },
+        }],
+      },
+      legend: {
+        display: false,
+      },
+      tooltips: {
+        enabled: false,
+      },
+    },
+  });
+};
+
+const createStatsTemplate = (data) => {
+  const {films, dateFrom, dateTo} = data;
+  const filmsInPeriod = getFilmsInPeriod(dateFrom, dateTo, films);
+  const watchedFilmCount = filmsInPeriod.length;
+  const totalDuration = getTotalDuration(filmsInPeriod);
+  const filmGenres = getFilmGenres(filmsInPeriod);
+  const uniqueGenres = makeItemsUnique(filmGenres);
+  const genresSorted = getGenresSorted(uniqueGenres, filmGenres);
+
+  return `<section class="statistic">
     <p class="statistic__rank">
       Your rank
       <img class="statistic__img" src="images/bitmap@2x.png" alt="Avatar" width="35" height="35">
@@ -30,15 +110,15 @@ const createStatsTemplate = () => (
     <ul class="statistic__text-list">
       <li class="statistic__text-item">
         <h4 class="statistic__item-title">You watched</h4>
-        <p class="statistic__item-text">22 <span class="statistic__item-description">movies</span></p>
+        <p class="statistic__item-text">${watchedFilmCount} <span class="statistic__item-description">movies</span></p>
       </li>
       <li class="statistic__text-item">
         <h4 class="statistic__item-title">Total duration</h4>
-        <p class="statistic__item-text">130 <span class="statistic__item-description">h</span> 22 <span class="statistic__item-description">m</span></p>
+        <p class="statistic__item-text">${totalDuration.hours} <span class="statistic__item-description">h</span> ${totalDuration.minutes} <span class="statistic__item-description">m</span></p>
       </li>
       <li class="statistic__text-item">
         <h4 class="statistic__item-title">Top genre</h4>
-        <p class="statistic__item-text">Sci-Fi</p>
+        ${filmsInPeriod.length ? `<p class="statistic__item-text">${genresSorted.labels[0]}</p>` : ''}
       </li>
     </ul>
 
@@ -46,11 +126,95 @@ const createStatsTemplate = () => (
       <canvas class="statistic__chart" width="1000"></canvas>
     </div>
 
-  </section>`
-);
+  </section>`;
+};
 
-export default class Stats extends AbstractView {
+export default class Stats extends SmartView {
+  constructor(films) {
+    super();
+
+    this._films = films.filter((film) => film.userDetails.alreadyWatched === true);
+
+    this._data = {
+      films: this._films,
+      dateFrom: (() => {
+        const defaultDateFrom = StatsPeriod.ALLTIME;
+        return dayjs().subtract(defaultDateFrom, 'day').toDate();
+      })(),
+      dateTo: dayjs().toDate(),
+      check: 'all-time',
+    };
+
+    this._chart = null;
+    this._rangeChangeHandler = this._rangeChangeHandler.bind(this);
+
+    this._setCharts();
+    this._setInnerHandlers();
+  }
+
+  removeElement() {
+    super.removeElement();
+  }
+
   getTemplate() {
-    return createStatsTemplate();
+    return createStatsTemplate(this._data);
+  }
+
+  restoreHandlers() {
+    this._setCharts();
+    this._setInnerHandlers();
+  }
+
+  _rangeChangeHandler(evt) {
+    const date = new FormData(evt.currentTarget);
+    const dateFrom = this._getStatsPeriod(date.get('statistic-filter'));
+    if (!dateFrom) {
+      return;
+    }
+
+    if (dateFrom === 0) {
+      this.updateData({
+        dateFrom: dayjs().toDate(),
+      });
+    }
+    this.updateData({
+      dateFrom: (() => dayjs().subtract(dateFrom, 'day').toDate())(),
+      check: evt.target.value,
+    });
+  }
+
+  _getStatsPeriod(period) {
+    switch (period) {
+      case 'today':
+        return StatsPeriod.TODAY;
+      case 'week':
+        return StatsPeriod.WEEK;
+      case 'month':
+        return StatsPeriod.MOUNTH;
+      case 'year':
+        return StatsPeriod.YEAR;
+      case 'all-time':
+        return StatsPeriod.ALLTIME;
+    }
+  }
+
+  _setCharts() {
+    if (this._chart !== null) {
+      this._chart = null;
+    }
+
+    const {films, dateFrom, dateTo, check} = this._data;
+
+    Array.from(this.getElement().querySelector('.statistic__filters').children)
+      .find((child) => child.value === check).checked = true;
+
+    const filmsInPeriod = getFilmsInPeriod(dateFrom, dateTo, films);
+    const genresCtx = this.getElement().querySelector('.statistic__chart');
+
+    this._chart = renderGenresChart(genresCtx, filmsInPeriod);
+  }
+
+  _setInnerHandlers() {
+    this.getElement().querySelector('.statistic__filters').addEventListener('change', this._rangeChangeHandler);
   }
 }

@@ -152,8 +152,8 @@ const runtime = {
 };
 
 const generateDate = () => {
-  const maxDaysGap = 7;
-  const daysGap = getRandomInteger(-maxDaysGap, maxDaysGap);
+  const maxDaysGap = -20;
+  const daysGap = getRandomInteger(0, maxDaysGap);
 
   return dayjs().add(daysGap, 'day').toDate();
 };

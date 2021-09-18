@@ -5,7 +5,7 @@ const createFilmCardTemplate = (film) => {
   const filmYear = humanizeDateCard(film.filmInfo.release.date);
   const filmRuntime = humanizeRuntime(film.filmInfo.runtime);
 
-  return `<article class="film-card" id = "${film.id}">
+  return `<article class="film-card" id="${film.id}">
     <h3 class="film-card__title">${film.filmInfo.title}</h3>
     <p class="film-card__rating">${film.filmInfo.totalRating}</p>
     <p class="film-card__info">
@@ -44,15 +44,15 @@ export default class FilmCard extends AbstractView {
   }
 
   _favoriteClickHandler() {
-    this._callback.favoriteClick();
+    this._callback.favoriteClick(this._film);
   }
 
   _alreadyWatchedClickHandler() {
-    this._callback.alreadyWatchedClick();
+    this._callback.alreadyWatchedClick(this._film);
   }
 
   _watchlistClickHandler() {
-    this._callback.watchlistClick();
+    this._callback.watchlistClick(this._film);
   }
 
   setOpenClickHandler(callback) {
