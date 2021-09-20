@@ -157,7 +157,7 @@ export default class Films {
   }
 
   _renderFilm(film, container, presenter) {
-    const filmPresenter = new FilmPresenter(container, this._handleViewAction, this._handleModeChange);
+    const filmPresenter = new FilmPresenter(container, this._handleViewAction, this._handleModeChange, this._filmsModel, this._api);
     filmPresenter.init(film);
     presenter.set(film.id, filmPresenter);
   }

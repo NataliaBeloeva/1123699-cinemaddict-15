@@ -51,24 +51,10 @@ const filterPresenter = new FilterPresenter(mainElement, filterModel, filmsModel
 filterPresenter.init();
 filmsPresenter.init();
 
-const filmsCopy = [];
 api.getFilms()
   .then((films) => {
-    films.forEach((film) => {
-      api.getComments(film)
-        .then((comments) => {
-          film.comments = comments;
-          filmsCopy.push(film);
-        })
-        .then(() => {
-          if(films.length === filmsCopy.length){
-            console.log(films);
-            filmsModel.setFilms(UpdateType.INIT, films);
-            render(footerStatisticsElement, new FilmAmountView(films.length));
-          }
-        })
-        .catch(() => {
-          filmsModel.setFilms(UpdateType.INIT, []);
-        });
-    });
+    filmsModel.setFilms(UpdateType.INIT, films);
+  })
+  .catch(() => {
+    filmsModel.setFilms(UpdateType.INIT, []);
   });

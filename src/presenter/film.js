@@ -9,10 +9,11 @@ const Mode = {
 };
 
 export default class Film {
-  constructor (filmContainer, changeData, changeMode, api) {
+  constructor (filmContainer, changeData, changeMode, filmsModel, api) {
     this._filmContainer = filmContainer;
     this._changeData = changeData;
     this._changeMode = changeMode;
+    this._filmsModel = filmsModel;
     this._api = api;
 
     this._filmComponent = null;
@@ -37,8 +38,10 @@ export default class Film {
     const prevFilmComponent = this._filmComponent;
     const prevPopupComponent = this._popupComponent;
 
+
     this._filmComponent = new FilmCardView(this._film);
     this._popupComponent = new PopupView(this._film);
+    this._getComments();
 
     this._filmComponent.setOpenClickHandler(this._handleOpenPopup);
     this._filmComponent.setFavoriteClickHandler(this._handleFavoriteClick);
@@ -81,8 +84,17 @@ export default class Film {
     }
   }
 
+  _getComments() {
+    this._api.getComments(this._film)
+      .then((comments) => {
+        this._filmsModel.comments = comments;
+        this._popupComponent.setComments(comments);
+      });
+  }
+
   _openPopup() {
     this._closePopup();
+    this._getComments();
     render(this._popupContainer, this._popupComponent);
     this._popupContainer.classList.add('hide-overflow');
     document.addEventListener('keydown', this._onDocumentKeydown);

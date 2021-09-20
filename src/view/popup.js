@@ -107,7 +107,7 @@ const createPopupTemplate = (film) => {
       <div class="film-details__bottom-container">
         <section class="film-details__comments-wrap">
           <h3 class="film-details__comments-title">Comments <span class="film-details__comments-count">${film.comments.length}</span></h3>
-          ${film.comments.length ? `<ul class="film-details__comments-list">${generateComments(film.comments)}</ul>` : ''}
+          ${film.isComments ? `<ul class="film-details__comments-list">${generateComments(film.comments)}</ul>` : ''}
           <div class="film-details__new-comment">
             <div class="film-details__add-emoji-label">
               ${film.emotionType ? `<img src="images/emoji/${film.emotionType}.png" width="55" height="55" alt="emoji-${film.emotionType}"> <input name="user-emoji" type="hidden" id="user-emoji" value="${film.emotionType}">` : ''}
@@ -129,7 +129,6 @@ export default class Popup extends SmartView {
   constructor(film) {
     super();
     this._data = Popup.parseFilmToData(film);
-    this._comments = this._data.comments;
 
     this._closeClickHandler = this._closeClickHandler.bind(this);
     this._favoriteClickHandler = this._favoriteClickHandler.bind(this);
@@ -149,6 +148,13 @@ export default class Popup extends SmartView {
     this.updateData(
       Popup.parseFilmToData(film),
     );
+  }
+
+  setComments(comments) {
+    this.updateData({
+      comments: comments,
+      isComments: true,
+    });
   }
 
   getTemplate() {
@@ -281,6 +287,7 @@ export default class Popup extends SmartView {
       {},
       film,
       {
+        isComments: false,
         newComment: '',
         emotionType: null,
         scrollPosition: 0,
@@ -291,6 +298,10 @@ export default class Popup extends SmartView {
   static parseDataToFilm(data) {
     data = Object.assign({}, data);
 
+    if (!data.isComments) {
+      data.comments = false;
+    }
+
     if (!data.newComment) {
       data.newComment = '';
     }
@@ -299,6 +310,7 @@ export default class Popup extends SmartView {
       data.emotionType = null;
     }
 
+    delete data.isComments;
     delete data.newComment;
     delete data.emotionType;
 
