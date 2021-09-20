@@ -8,7 +8,6 @@ import FilmsPresenter from './presenter/films.js';
 import FilterPresenter from './presenter/filter.js';
 import FilmsModel from './model/films.js';
 import FilterModel from './model/filter.js';
-import CommentsModel from './model/comments.js';
 import Api from './api.js';
 
 //const FILMS_TOTAL = 17;
@@ -27,11 +26,10 @@ const api = new Api(END_POINT, AUTHORIZATION);
 
 const filmsModel = new FilmsModel();
 const filterModel = new FilterModel();
-const commentsModel = new CommentsModel();
 
 //filmsModel.setFilms(films);
 
-const filmsPresenter = new FilmsPresenter(mainElement, filmsModel, filterModel, commentsModel, api);
+const filmsPresenter = new FilmsPresenter(mainElement, filmsModel, filterModel, api);
 
 render(headerElement, new ProfileView());
 

@@ -16,11 +16,10 @@ const FILM_COUNT_PER_STEP = 5;
 const FILMS_EXTRA_COUNT = 2;
 
 export default class Films {
-  constructor (filmsContainer, filmsModel, filterModel, commentsModel, api) {
+  constructor (filmsContainer, filmsModel, filterModel, api) {
     this._filmsContainer = filmsContainer;
     this._filmsModel = filmsModel;
     this._filterModel = filterModel;
-    this._commentsModel = commentsModel;
     this._api = api;
 
     this._renderedFilmCount = FILM_COUNT_PER_STEP;
@@ -57,7 +56,6 @@ export default class Films {
   init() {
     this._filmsModel.addObserver(this._handleModelEvent);
     this._filterModel.addObserver(this._handleModelEvent);
-    this._commentsModel.addObserver(this._handleModelEvent);
 
     this._renderBoard();
   }
@@ -72,7 +70,6 @@ export default class Films {
   _getFilms() {
     this._filterType = this._filterModel.getFilter();
     const films = this._filmsModel.getFilms();
-    console.log(films);
     const filteredTasks = filter[this._filterType](films);
 
     switch (this._currentSortType) {
@@ -145,7 +142,7 @@ export default class Films {
   }
 
   _renderFilm(film, container, presenter) {
-    const filmPresenter = new FilmPresenter(container, this._handleViewAction, this._handleModeChange, this._filmsModel, this._commentsModel, this._api);
+    const filmPresenter = new FilmPresenter(container, this._handleViewAction, this._handleModeChange, this._filmsModel, this._api);
     filmPresenter.init(film);
     presenter.set(film.id, filmPresenter);
   }

@@ -2,6 +2,7 @@ import {render, remove, replace} from '../utils/render.js';
 import FilmCardView from '../view/film-card.js';
 import PopupView from '../view/popup.js';
 import {UserAction, UpdateType, FilterType} from '../const.js';
+import CommentsModel from '../model/comments.js';
 
 const Mode = {
   DEFAULT: 'DEFAULT',
@@ -9,16 +10,16 @@ const Mode = {
 };
 
 export default class Film {
-  constructor (filmContainer, changeData, changeMode, filmsModel, commentsModel, api) {
+  constructor (filmContainer, changeData, changeMode, filmsModel, api) {
     this._filmContainer = filmContainer;
     this._changeData = changeData;
     this._changeMode = changeMode;
     this._filmsModel = filmsModel;
-    this._commentsModel = commentsModel;
     this._api = api;
 
     this._filmComponent = null;
     this._popupComponent = null;
+    this._commentsModel = new CommentsModel();
     this._mode = Mode.DEFAULT;
 
     this._handleOpenPopup = this._handleOpenPopup.bind(this);
@@ -35,13 +36,20 @@ export default class Film {
     this._film = film;
     this._popupContainer = document.body;
 
+    this._api.getComments(this._film.id)
+      .then((response) => {
+        if (this._film.comments) {
+          this._commentsModel.setComments(response);
+        }
+      }).catch(() => {
+        this._commentsModel.setComments(null);
+      });
+
     const prevFilmComponent = this._filmComponent;
     const prevPopupComponent = this._popupComponent;
 
     this._filmComponent = new FilmCardView(this._film);
-    this._popupComponent = new PopupView(this._film);
-
-    this._getComments();
+    this._popupComponent = new PopupView(this._film, this._commentsModel.getComments());
 
     this._filmComponent.setOpenClickHandler(this._handleOpenPopup);
     this._filmComponent.setFavoriteClickHandler(this._handleFavoriteClick);
@@ -84,15 +92,8 @@ export default class Film {
     }
   }
 
-  _getComments() {
-    this._api.getComments(this._film.id)
-      .then((comments) => this._filmsModel.comments = comments)
-      .then((comments) => this._popupComponent.setComments(comments));
-  }
-
   _openPopup() {
     this._closePopup();
-    this._getComments();
     render(this._popupContainer, this._popupComponent);
     this._popupContainer.classList.add('hide-overflow');
     document.addEventListener('keydown', this._onDocumentKeydown);
