@@ -61,6 +61,5 @@ api.getFilms()
     render(footerStatisticsElement, new FilmAmountView(films.length));
   })
   .catch(() => {
-    console.log('catch');
     filmsModel.setFilms(UpdateType.INIT, []);
   });

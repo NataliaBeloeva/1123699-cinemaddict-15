@@ -153,6 +153,7 @@ export default class Popup extends SmartView {
   }
 
   getTemplate() {
+    //console.log(this._comments);
     return createPopupTemplate(this._data, this._comments);
   }
 

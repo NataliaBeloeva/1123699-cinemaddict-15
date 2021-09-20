@@ -2,7 +2,6 @@ import {render, remove, replace} from '../utils/render.js';
 import FilmCardView from '../view/film-card.js';
 import PopupView from '../view/popup.js';
 import {UserAction, UpdateType, FilterType} from '../const.js';
-import CommentsModel from '../model/comments.js';
 
 const Mode = {
   DEFAULT: 'DEFAULT',
@@ -10,16 +9,14 @@ const Mode = {
 };
 
 export default class Film {
-  constructor (filmContainer, changeData, changeMode, filmsModel, api) {
+  constructor (filmContainer, changeData, changeMode, api) {
     this._filmContainer = filmContainer;
     this._changeData = changeData;
     this._changeMode = changeMode;
-    this._filmsModel = filmsModel;
     this._api = api;
 
     this._filmComponent = null;
     this._popupComponent = null;
-    this._commentsModel = new CommentsModel();
     this._mode = Mode.DEFAULT;
 
     this._handleOpenPopup = this._handleOpenPopup.bind(this);
@@ -36,32 +33,28 @@ export default class Film {
     this._film = film;
     this._popupContainer = document.body;
 
-    this._api.getComments(this._film.id)
-      .then((response) => {
-        if (this._film.comments) {
-          this._commentsModel.setComments(response);
-        }
-      }).catch(() => {
-        this._commentsModel.setComments(null);
-      });
-
     const prevFilmComponent = this._filmComponent;
     const prevPopupComponent = this._popupComponent;
 
     this._filmComponent = new FilmCardView(this._film);
-    this._popupComponent = new PopupView(this._film, this._commentsModel.getComments());
-
     this._filmComponent.setOpenClickHandler(this._handleOpenPopup);
     this._filmComponent.setFavoriteClickHandler(this._handleFavoriteClick);
     this._filmComponent.setAlreadyWatchedClickHandler(this._handleAlreadyWatchedClick);
     this._filmComponent.setWatchlistClickHandler(this._handleWatchlistClick);
 
-    this._popupComponent.setCloseClickHandler(this._handleClosePopup);
-    this._popupComponent.setFavoriteClickHandler(this._handleFavoriteClick);
-    this._popupComponent.setAlreadyWatchedClickHandler(this._handleAlreadyWatchedClick);
-    this._popupComponent.setWatchlistClickHandler(this._handleWatchlistClick);
-    this._popupComponent.setCommentDeleteClickHandler(this._handleCommentsUpdate);
-    this._popupComponent.setAddCommentHandler(this._handleCommentsUpdate);
+    this._api.getComments(this._film.id)
+      .then((comments) => {
+        this._film.comments = comments;
+      })
+      .then(() => {
+        this._popupComponent = new PopupView(this._film, this._film.comments);
+        this._popupComponent.setCloseClickHandler(this._handleClosePopup);
+        this._popupComponent.setFavoriteClickHandler(this._handleFavoriteClick);
+        this._popupComponent.setAlreadyWatchedClickHandler(this._handleAlreadyWatchedClick);
+        this._popupComponent.setWatchlistClickHandler(this._handleWatchlistClick);
+        this._popupComponent.setCommentDeleteClickHandler(this._handleCommentsUpdate);
+        this._popupComponent.setAddCommentHandler(this._handleCommentsUpdate);
+      });
 
     if (prevFilmComponent === null) {
       render(this._filmContainer, this._filmComponent);
