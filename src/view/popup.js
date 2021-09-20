@@ -1,7 +1,6 @@
 import SmartView from './smart.js';
 import he from 'he';
-import {generateDate, humanizeDate, humanizeDatePopup, humanizeRuntime} from '../utils/film.js';
-import {getRandomUniqueInteger} from '../utils/common.js';
+import {humanizeDatePopup, humanizeRuntime} from '../utils/film.js';
 import {EMOTIONS} from '../const.js';
 
 const createGenreTemplate = (genre) => `<span class="film-details__genre">${genre}</span>`;
@@ -35,7 +34,7 @@ const generateGenres = (genres) => genres.map(createGenreTemplate).join(' ');
 const generateComments = (comments) => comments.map(createCommentTemplate).join(' ');
 const generateEmotions = (emotions, emotionType) => emotions.map((emotion) => createEmotionTemplate(emotion, emotionType)).join(' ');
 
-const createPopupTemplate = (film, comments) => {
+const createPopupTemplate = (film) => {
   const filmDate = humanizeDatePopup(film.filmInfo.release.date);
   const filmRuntime = humanizeRuntime(film.filmInfo.runtime);
 
@@ -107,8 +106,8 @@ const createPopupTemplate = (film, comments) => {
       </div>
       <div class="film-details__bottom-container">
         <section class="film-details__comments-wrap">
-          <h3 class="film-details__comments-title">Comments <span class="film-details__comments-count">${comments.length}</span></h3>
-          ${comments.length ? `<ul class="film-details__comments-list">${generateComments(comments)}</ul>` : ''}
+          <h3 class="film-details__comments-title">Comments <span class="film-details__comments-count">${film.comments.length}</span></h3>
+          ${film.comments.length ? `<ul class="film-details__comments-list">${generateComments(film.comments)}</ul>` : ''}
           <div class="film-details__new-comment">
             <div class="film-details__add-emoji-label">
               ${film.emotionType ? `<img src="images/emoji/${film.emotionType}.png" width="55" height="55" alt="emoji-${film.emotionType}"> <input name="user-emoji" type="hidden" id="user-emoji" value="${film.emotionType}">` : ''}
@@ -127,10 +126,10 @@ const createPopupTemplate = (film, comments) => {
 };
 
 export default class Popup extends SmartView {
-  constructor(film, comments) {
+  constructor(film) {
     super();
     this._data = Popup.parseFilmToData(film);
-    this._comments = comments;
+    this._comments = this._data.comments;
 
     this._closeClickHandler = this._closeClickHandler.bind(this);
     this._favoriteClickHandler = this._favoriteClickHandler.bind(this);
@@ -153,8 +152,7 @@ export default class Popup extends SmartView {
   }
 
   getTemplate() {
-    //console.log(this._comments);
-    return createPopupTemplate(this._data, this._comments);
+    return createPopupTemplate(this._data);
   }
 
   _closeClickHandler(evt) {
@@ -216,39 +214,13 @@ export default class Popup extends SmartView {
 
   _commentDeleteClickHandler(evt) {
     evt.preventDefault();
-    const commentId = parseInt(evt.target.dataset.id, 10);
-    const index = this._comments.findIndex((comment) => comment.id === commentId);
-
-    this._comments = [
-      ...this._comments.slice(0, index),
-      ...this._comments.slice(index + 1),
-    ];
-
-    this.updateData({
-      comments: this._comments,
-    });
-
-    this._callback.commentDeleteClick(Popup.parseDataToFilm(this._data));
+    const commentId = evt.target.dataset.id;
+    this._callback.commentDeleteClick(commentId);
   }
 
   _keyDownCtrlEnterHandler(evt) {
     if (evt.key === 'Enter' && (evt.metaKey || evt.ctrlKey) && this._data.emotionType && this._data.newComment) {
-      const commentToAdd = {
-        id: getRandomUniqueInteger(0, 1000),
-        author: 'Натали',
-        comment: this._data.newComment,
-        date: humanizeDate(generateDate()),
-        emotion: this._data.emotionType,
-      };
-
-      this._comments = [...this._comments, commentToAdd];
-
-      this.updateData({
-        comments: this._comments,
-      });
-
-      document.removeEventListener('keydown', this._keyDownCtrlEnterHandler);
-      this._callback.addComment(Popup.parseDataToFilm(this._data));
+      this._callback.addComment(this._data.newComment, this._data.emotionType);
     }
   }
 

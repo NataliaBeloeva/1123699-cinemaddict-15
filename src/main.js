@@ -21,13 +21,10 @@ const headerElement = bodyElement.querySelector('.header');
 const footerElement = bodyElement.querySelector('.footer');
 const footerStatisticsElement = footerElement.querySelector('.footer__statistics');
 
-//const films = new Array(FILMS_TOTAL).fill(null).map((item, idx) => generateCard(idx));
 const api = new Api(END_POINT, AUTHORIZATION);
 
 const filmsModel = new FilmsModel();
 const filterModel = new FilterModel();
-
-//filmsModel.setFilms(films);
 
 const filmsPresenter = new FilmsPresenter(mainElement, filmsModel, filterModel, api);
 
@@ -54,12 +51,24 @@ const filterPresenter = new FilterPresenter(mainElement, filterModel, filmsModel
 filterPresenter.init();
 filmsPresenter.init();
 
-
+const filmsCopy = [];
 api.getFilms()
   .then((films) => {
-    filmsModel.setFilms(UpdateType.INIT, films);
-    render(footerStatisticsElement, new FilmAmountView(films.length));
-  })
-  .catch(() => {
-    filmsModel.setFilms(UpdateType.INIT, []);
+    films.forEach((film) => {
+      api.getComments(film)
+        .then((comments) => {
+          film.comments = comments;
+          filmsCopy.push(film);
+        })
+        .then(() => {
+          if(films.length === filmsCopy.length){
+            console.log(films);
+            filmsModel.setFilms(UpdateType.INIT, films);
+            render(footerStatisticsElement, new FilmAmountView(films.length));
+          }
+        })
+        .catch(() => {
+          filmsModel.setFilms(UpdateType.INIT, []);
+        });
+    });
   });

@@ -89,13 +89,28 @@ export default class Films {
     this._getFilmPresenters().map((presenter) => presenter.forEach((item) => item.resetView()));
   }
 
-  _handleViewAction(actionType, updateType, update, filterType) {
+  _handleViewAction(actionType, updateType, update, film) {
     switch (actionType) {
       case UserAction.UPDATE_FILM: {
-        const actualUpdateType = this._filterModel.getFilter() === filterType ? UpdateType.MINOR : updateType;
-        this._filmsModel.updateFilm(actualUpdateType, update);
+        const actualUpdateType = this._filterModel.getFilter() === film ? UpdateType.MINOR : updateType;
+        this._api.updateFilm(update)
+          .then((response) => {
+            this._filmsModel.updateFilm(actualUpdateType, response);
+          });
         break;
       }
+      case UserAction.DELETE_COMMENT:
+        this._api.deleteComment(update)
+          .then(() => {
+            this._filmsModel.deleteComment(updateType, film, update);
+          });
+        break;
+      case UserAction.ADD_COMMENT:
+        this._api.addComment(update, film)
+          .then((response) => {
+            this._filmsModel.addComment(updateType, response);
+          });
+        break;
     }
   }
 
@@ -142,7 +157,7 @@ export default class Films {
   }
 
   _renderFilm(film, container, presenter) {
-    const filmPresenter = new FilmPresenter(container, this._handleViewAction, this._handleModeChange, this._api);
+    const filmPresenter = new FilmPresenter(container, this._handleViewAction, this._handleModeChange);
     filmPresenter.init(film);
     presenter.set(film.id, filmPresenter);
   }

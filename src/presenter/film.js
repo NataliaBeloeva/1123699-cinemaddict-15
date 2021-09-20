@@ -26,7 +26,8 @@ export default class Film {
     this._handleFavoriteClick = this._handleFavoriteClick.bind(this);
     this._handleAlreadyWatchedClick = this._handleAlreadyWatchedClick.bind(this);
     this._handleWatchlistClick = this._handleWatchlistClick.bind(this);
-    this._handleCommentsUpdate = this._handleCommentsUpdate.bind(this);
+    this._handleCommentDelete = this._handleCommentDelete.bind(this);
+    this._handleCommentAdd = this._handleCommentAdd.bind(this);
   }
 
   init(film) {
@@ -37,24 +38,19 @@ export default class Film {
     const prevPopupComponent = this._popupComponent;
 
     this._filmComponent = new FilmCardView(this._film);
+    this._popupComponent = new PopupView(this._film);
+
     this._filmComponent.setOpenClickHandler(this._handleOpenPopup);
     this._filmComponent.setFavoriteClickHandler(this._handleFavoriteClick);
     this._filmComponent.setAlreadyWatchedClickHandler(this._handleAlreadyWatchedClick);
     this._filmComponent.setWatchlistClickHandler(this._handleWatchlistClick);
 
-    this._api.getComments(this._film.id)
-      .then((comments) => {
-        this._film.comments = comments;
-      })
-      .then(() => {
-        this._popupComponent = new PopupView(this._film, this._film.comments);
-        this._popupComponent.setCloseClickHandler(this._handleClosePopup);
-        this._popupComponent.setFavoriteClickHandler(this._handleFavoriteClick);
-        this._popupComponent.setAlreadyWatchedClickHandler(this._handleAlreadyWatchedClick);
-        this._popupComponent.setWatchlistClickHandler(this._handleWatchlistClick);
-        this._popupComponent.setCommentDeleteClickHandler(this._handleCommentsUpdate);
-        this._popupComponent.setAddCommentHandler(this._handleCommentsUpdate);
-      });
+    this._popupComponent.setCloseClickHandler(this._handleClosePopup);
+    this._popupComponent.setFavoriteClickHandler(this._handleFavoriteClick);
+    this._popupComponent.setAlreadyWatchedClickHandler(this._handleAlreadyWatchedClick);
+    this._popupComponent.setWatchlistClickHandler(this._handleWatchlistClick);
+    this._popupComponent.setCommentDeleteClickHandler(this._handleCommentDelete);
+    this._popupComponent.setAddCommentHandler(this._handleCommentAdd);
 
     if (prevFilmComponent === null) {
       render(this._filmContainer, this._filmComponent);
@@ -174,11 +170,21 @@ export default class Film {
     );
   }
 
-  _handleCommentsUpdate(update) {
+  _handleCommentDelete(comment) {
     this._changeData(
-      UserAction.UPDATE_FILM,
+      UserAction.DELETE_COMMENT,
       UpdateType.PATCH,
-      update,
+      comment,
+      this._film,
+    );
+  }
+
+  _handleCommentAdd(comment, emotion) {
+    this._changeData(
+      UserAction.ADD_COMMENT,
+      UpdateType.PATCH,
+      {comment, emotion},
+      this._film,
     );
   }
 }
