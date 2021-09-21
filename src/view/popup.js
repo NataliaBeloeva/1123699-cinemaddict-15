@@ -226,6 +226,7 @@ export default class Popup extends SmartView {
 
   _keyDownCtrlEnterHandler(evt) {
     if (evt.key === 'Enter' && (evt.metaKey || evt.ctrlKey) && this._data.emotionType && this._data.newComment) {
+      document.removeEventListener('keydown', this._keyDownCtrlEnterHandler);
       this._callback.addComment(this._data.newComment, this._data.emotionType);
     }
   }
