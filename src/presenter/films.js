@@ -102,7 +102,7 @@ export default class Films {
       case UserAction.DELETE_COMMENT:
         this._api.deleteComment(update)
           .then(() => {
-            this._filmsModel.deleteComment(updateType, film, update);
+            this._filmsModel.deleteComment(updateType, update, film);
           });
         break;
       case UserAction.ADD_COMMENT:

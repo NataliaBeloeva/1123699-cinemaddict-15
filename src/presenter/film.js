@@ -87,7 +87,7 @@ export default class Film {
   _getComments() {
     this._api.getComments(this._film)
       .then((comments) => {
-        this._filmsModel.comments = comments;
+        this._filmsModel.setComments(comments);
         this._popupComponent.setComments(comments);
       });
   }
