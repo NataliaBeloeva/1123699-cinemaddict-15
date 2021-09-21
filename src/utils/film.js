@@ -1,5 +1,6 @@
 import dayjs from 'dayjs';
 import {getRandomInteger} from './common.js';
+import {ZERO_FILMS_COUNT, MIN_FILMS_COUNT, MAX_FILMS_COUNT, UserRank} from '../const.js';
 
 export const generateDate = () => {
   const maxDaysGap = 7;
@@ -16,3 +17,17 @@ export const sortFilmByComments = (filmA, filmB) => filmB.comments.length - film
 export const humanizeRuntime = (time) => `${Math.floor(time / 60)}h ${time % 60}m`;
 export const isDateToday = (date) => dayjs(date).isToday();
 
+export const getUserRank = (watchedFilmCount) => {
+  const isNovice = watchedFilmCount > ZERO_FILMS_COUNT && watchedFilmCount <= MIN_FILMS_COUNT;
+  const isFan = watchedFilmCount > MIN_FILMS_COUNT && watchedFilmCount <= MAX_FILMS_COUNT;
+  const isMovieBuff = watchedFilmCount > MAX_FILMS_COUNT;
+
+  if (isNovice) {
+    return UserRank.NOVICE;
+  } else if (isFan) {
+    return UserRank.FAN;
+  } else if (isMovieBuff) {
+    return UserRank.MOVIE_BUFF;
+  }
+  return '';
+};

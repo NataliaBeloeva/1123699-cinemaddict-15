@@ -1,10 +1,12 @@
-import FilterView from '../view/filter.js';
-import {render, RenderPosition, replace, remove} from '../utils/render.js';
+import {render, replace, remove} from '../utils/render.js';
 import {filter} from '../utils/filter.js';
 import {FilterType, UpdateType, MenuItem} from '../const.js';
+import ProfileView from '../view/profile.js';
+import FilterView from '../view/filter.js';
 
 export default class Filter {
-  constructor(filterContainer, filterModel, filmsModel, menuClickHandler) {
+  constructor(headerContainer, filterContainer, filterModel, filmsModel, menuClickHandler) {
+    this._headerContainer = headerContainer;
     this._filterContainer = filterContainer;
     this._filterModel = filterModel;
     this._filmsModel = filmsModel;
@@ -12,6 +14,7 @@ export default class Filter {
     this._menutype = MenuItem.FILMS;
 
     this._filterComponent = null;
+    this._profileComponent = null;
 
     this._handleModelEvent = this._handleModelEvent.bind(this);
     this._handleFilterTypeChange = this._handleFilterTypeChange.bind(this);
@@ -24,18 +27,25 @@ export default class Filter {
   init() {
     const filters = this._getFilters();
     const prevFilterComponent = this._filterComponent;
+    const prevProfileComponent = this._profileComponent;
 
     this._filterComponent = new FilterView(filters, this._filterModel.getFilter());
+    this._profileComponent = new ProfileView(this._getWatchedFilms());
+
     this._filterComponent.setFilterTypeChangeHandler(this._handleFilterTypeChange);
     this._filterComponent.setMenuTypeChangeHandler(this._handleMenuTypeChange);
 
-    if (prevFilterComponent === null) {
-      render(this._filterContainer, this._filterComponent, RenderPosition.BEFOREEND);
+    if (prevFilterComponent === null && prevProfileComponent === null) {
+      render(this._filterContainer, this._filterComponent);
+      render(this._headerContainer, this._profileComponent);
       return;
     }
 
     replace(this._filterComponent, prevFilterComponent);
+    replace(this._profileComponent, prevProfileComponent);
+
     remove(prevFilterComponent);
+    remove(prevProfileComponent);
   }
 
   _handleModelEvent() {
@@ -58,6 +68,10 @@ export default class Filter {
     this._menutype = menutype;
     this.init();
     this._menuClickHandler(menutype);
+  }
+
+  _getWatchedFilms() {
+    return this._getFilters().find((item) => item.type === FilterType.HISTORY).count;
   }
 
   _getFilters() {
