@@ -128,24 +128,25 @@ export default class Films extends AbstractObserver {
         },
       },
     );
-
-    delete adaptedFilm['film_info'].title;
-    delete adaptedFilm['film_info'].alternativeTitle;
-    delete adaptedFilm['film_info'].totalRating;
-    delete adaptedFilm['film_info'].poster;
-    delete adaptedFilm['film_info'].ageRating;
-    delete adaptedFilm['film_info'].director;
-    delete adaptedFilm['film_info'].writers;
-    delete adaptedFilm['film_info'].actors;
-    delete adaptedFilm['film_info'].release.date;
-    delete adaptedFilm['film_info'].release.releaseCountry;
-    delete adaptedFilm['film_info'].runtime;
-    delete adaptedFilm['film_info'].genre;
-    delete adaptedFilm['film_info'].description;
-    delete adaptedFilm['user_details'].watchlist;
-    delete adaptedFilm['user_details'].alreadyWatched;
-    delete adaptedFilm['user_details'].watchingDate;
-    delete adaptedFilm['user_details'].favorite;
+    delete adaptedFilm.filmInfo;
+    delete adaptedFilm.userDetails;
+    // delete adaptedFilm.filmInfo.title;
+    // delete adaptedFilm.filmInfo.alternativeTitle;
+    // delete adaptedFilm.filmInfo.totalRating;
+    // delete adaptedFilm.filmInfo.poster;
+    // delete adaptedFilm.filmInfo.ageRating;
+    // delete adaptedFilm.filmInfo.director;
+    // delete adaptedFilm.filmInfo.writers;
+    // delete adaptedFilm.filmInfo.actors;
+    // delete adaptedFilm.filmInfo.release.date;
+    // delete adaptedFilm.filmInfo.release.releaseCountry;
+    // delete adaptedFilm.filmInfo.runtime;
+    // delete adaptedFilm.filmInfo.genre;
+    // delete adaptedFilm.filmInfo.description;
+    // delete adaptedFilm.userDetails.watchlist;
+    // delete adaptedFilm.userDetails.alreadyWatched;
+    // delete adaptedFilm.userDetails.watchingDate;
+    // delete adaptedFilm.userDetails.favorite;
 
     return adaptedFilm;
   }

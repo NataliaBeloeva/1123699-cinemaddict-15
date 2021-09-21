@@ -12,7 +12,7 @@ import Api from './api.js';
 
 //const FILMS_TOTAL = 17;
 
-const AUTHORIZATION = 'Basic wieks829bg0506nb';
+const AUTHORIZATION = 'Basic stroms829bg0506nb';
 const END_POINT = 'https://15.ecmascript.pages.academy/cinemaddict';
 
 const bodyElement = document.body;
