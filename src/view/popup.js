@@ -5,7 +5,7 @@ import {EMOTIONS} from '../const.js';
 
 const createGenreTemplate = (genre) => `<span class="film-details__genre">${genre}</span>`;
 
-const createCommentTemplate = (message) => {
+const createCommentTemplate = (message, deleting, disabled) => {
   const {id, author, comment, date, emotion} = message;
 
   return `<li class="film-details__comment" id="${id}">
@@ -17,22 +17,22 @@ const createCommentTemplate = (message) => {
       <p class="film-details__comment-info">
         <span class="film-details__comment-author">${author}</span>
         <span class="film-details__comment-day">${date}</span>
-        <button class="film-details__comment-delete" data-id="${id}">Delete</button>
+        <button class="film-details__comment-delete" data-id="${id}" ${disabled ? 'disabled' : ''}>${deleting ? 'Deleting...' : 'Delete'}</button>
       </p>
     </div>
   </li>`;
 };
 
-const createEmotionTemplate = (emotion, emotionType) => (
-  `<input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-${emotion}" value="${emotion}" ${emotionType === emotion ? 'checked' : ''}>
+const createEmotionTemplate = (emotion, emotionType, disabled) => (
+  `<input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-${emotion}" value="${emotion}" ${emotionType === emotion ? 'checked' : ''} ${disabled ? 'disabled' : ''}>
     <label class="film-details__emoji-label" for="emoji-${emotion}">
       <img src="./images/emoji/${emotion}.png" width="30" height="30" alt="emoji">
     </label>`
 );
 
 const generateGenres = (genres) => genres.map(createGenreTemplate).join(' ');
-const generateComments = (comments) => comments.map(createCommentTemplate).join(' ');
-const generateEmotions = (emotions, emotionType) => emotions.map((emotion) => createEmotionTemplate(emotion, emotionType)).join(' ');
+const generateComments = (comments, deleting, disabled) => comments.map((comment) => createCommentTemplate(comment, deleting, disabled)).join(' ');
+const generateEmotions = (emotions, emotionType, disabled) => emotions.map((emotion) => createEmotionTemplate(emotion, emotionType, disabled)).join(' ');
 
 const createPopupTemplate = (film) => {
   const filmDate = humanizeDatePopup(film.filmInfo.release.date);
@@ -107,16 +107,16 @@ const createPopupTemplate = (film) => {
       <div class="film-details__bottom-container">
         <section class="film-details__comments-wrap">
           <h3 class="film-details__comments-title">Comments <span class="film-details__comments-count">${film.comments.length}</span></h3>
-          ${film.isComments ? `<ul class="film-details__comments-list">${generateComments(film.comments)}</ul>` : ''}
+          ${film.isComments ? `<ul class="film-details__comments-list">${generateComments(film.comments, film.isDeleting, film.isDisabled)}</ul>` : ''}
           <div class="film-details__new-comment">
             <div class="film-details__add-emoji-label">
               ${film.emotionType ? `<img src="images/emoji/${film.emotionType}.png" width="55" height="55" alt="emoji-${film.emotionType}"> <input name="user-emoji" type="hidden" id="user-emoji" value="${film.emotionType}">` : ''}
             </div>
             <label class="film-details__comment-label">
-              <textarea class="film-details__comment-input" placeholder="Select reaction below and write comment here" name="comment">${film.newComment}</textarea>
+              <textarea class="film-details__comment-input" placeholder="Select reaction below and write comment here" name="comment" ${film.isDisabled ? 'disabled' : ''}>${film.newComment}</textarea>
             </label>
             <div class="film-details__emoji-list">
-              ${generateEmotions(EMOTIONS, film.emotionType)}
+              ${generateEmotions(EMOTIONS, film.emotionType, film.isDisabled)}
             </div>
           </div>
         </section>
@@ -174,7 +174,6 @@ export default class Popup extends SmartView {
         favorite: !this._data.userDetails.favorite,
       },
     });
-    this.getElement().scrollTo(0, this._data.scrollPosition);
   }
 
   _alreadyWatchedClickHandler() {
@@ -185,7 +184,6 @@ export default class Popup extends SmartView {
         alreadyWatched: !this._data.userDetails.alreadyWatched,
       },
     });
-    this.getElement().scrollTo(0, this._data.scrollPosition);
   }
 
   _watchlistClickHandler() {
@@ -196,7 +194,6 @@ export default class Popup extends SmartView {
         watchlist: !this._data.userDetails.watchlist,
       },
     });
-    this.getElement().scrollTo(0, this._data.scrollPosition);
   }
 
   _commentTextInputHandler(evt) {
@@ -226,8 +223,8 @@ export default class Popup extends SmartView {
 
   _keyDownCtrlEnterHandler(evt) {
     if (evt.key === 'Enter' && (evt.metaKey || evt.ctrlKey) && this._data.emotionType && this._data.newComment) {
-      document.removeEventListener('keydown', this._keyDownCtrlEnterHandler);
       this._callback.addComment(this._data.newComment, this._data.emotionType);
+      document.removeEventListener('keydown', this._keyDownCtrlEnterHandler);
     }
   }
 
@@ -292,6 +289,8 @@ export default class Popup extends SmartView {
         newComment: '',
         emotionType: null,
         scrollPosition: 0,
+        isDisabled: false,
+        isDeleting: false,
       },
     );
   }
@@ -314,6 +313,9 @@ export default class Popup extends SmartView {
     delete data.isComments;
     delete data.newComment;
     delete data.emotionType;
+    delete data.isDisabled;
+    delete data.isDeleting;
+    delete data.scrollPosition;
 
     return data;
   }

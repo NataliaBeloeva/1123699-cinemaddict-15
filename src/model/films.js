@@ -53,13 +53,13 @@ export default class Films extends AbstractObserver {
 
   addComment(updateType, update) {
     const filmIndex = this._films.findIndex((film) => film.id === update.movie.id);
-    const newComment = update.movie.comments;
+    const updatedComments = update.movie.comments;
 
     if (filmIndex === -1) {
       throw new Error('Can\'t update unexisting film');
     }
 
-    this._films[filmIndex].comments = [...this._films[filmIndex].comments, newComment];
+    this._films[filmIndex].comments = updatedComments;
     this._notify(updateType, this._films[filmIndex]);
   }
 
@@ -136,23 +136,6 @@ export default class Films extends AbstractObserver {
     );
     delete adaptedFilm.filmInfo;
     delete adaptedFilm.userDetails;
-    // delete adaptedFilm.filmInfo.title;
-    // delete adaptedFilm.filmInfo.alternativeTitle;
-    // delete adaptedFilm.filmInfo.totalRating;
-    // delete adaptedFilm.filmInfo.poster;
-    // delete adaptedFilm.filmInfo.ageRating;
-    // delete adaptedFilm.filmInfo.director;
-    // delete adaptedFilm.filmInfo.writers;
-    // delete adaptedFilm.filmInfo.actors;
-    // delete adaptedFilm.filmInfo.release.date;
-    // delete adaptedFilm.filmInfo.release.releaseCountry;
-    // delete adaptedFilm.filmInfo.runtime;
-    // delete adaptedFilm.filmInfo.genre;
-    // delete adaptedFilm.filmInfo.description;
-    // delete adaptedFilm.userDetails.watchlist;
-    // delete adaptedFilm.userDetails.alreadyWatched;
-    // delete adaptedFilm.userDetails.watchingDate;
-    // delete adaptedFilm.userDetails.favorite;
 
     return adaptedFilm;
   }

@@ -1,11 +1,12 @@
 import {render, remove, replace} from '../utils/render.js';
 import FilmCardView from '../view/film-card.js';
 import PopupView from '../view/popup.js';
-import {UserAction, UpdateType, FilterType} from '../const.js';
+import {Mode, UserAction, UpdateType, FilterType} from '../const.js';
 
-const Mode = {
-  DEFAULT: 'DEFAULT',
-  POPUP: 'POPUP',
+export const State = {
+  SAVING: 'SAVING',
+  DELETING: 'DELETING',
+  ABORTING: 'ABORTING',
 };
 
 export default class Film {
@@ -81,6 +82,37 @@ export default class Film {
   resetView() {
     if (this._mode !== Mode.DEFAULT) {
       this._mode = Mode.DEFAULT;
+    }
+  }
+
+  setViewState(state) {
+    if (this._mode === Mode.DEFAULT) {
+      return;
+    }
+
+    const resetFormState = () => {
+      this._popupComponent.updateData({
+        isDisabled: false,
+        isDeleting: false,
+      });
+    };
+
+    switch (state) {
+      case State.SAVING:
+        this._popupComponent.updateData({
+          isDisabled: true,
+        });
+        break;
+      case State.DELETING:
+        this._popupComponent.updateData({
+          isDisabled: true,
+          isDeleting: true,
+        });
+        break;
+      case State.ABORTING:
+        this._filmComponent.shake(resetFormState);
+        this._popupComponent.shake(resetFormState);
+        break;
     }
   }
 

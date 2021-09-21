@@ -10,7 +10,7 @@ import NoFilmView from '../view/no-film.js';
 import SortView from '../view/sort.js';
 import ShowMoreView from '../view/show-more.js';
 import LoadingView from '../view/loading.js';
-import FilmPresenter from './film.js';
+import FilmPresenter, {State as FilmPresenterViewState} from './film.js';
 
 const FILM_COUNT_PER_STEP = 5;
 const FILMS_EXTRA_COUNT = 2;
@@ -93,22 +93,34 @@ export default class Films {
     switch (actionType) {
       case UserAction.UPDATE_FILM: {
         const actualUpdateType = this._filterModel.getFilter() === film ? UpdateType.MINOR : updateType;
+        this._filmPresenter.get(update.id).setViewState(FilmPresenterViewState.SAVING);
         this._api.updateFilm(update)
           .then((response) => {
             this._filmsModel.updateFilm(actualUpdateType, response);
+          })
+          .catch(() => {
+            this._filmPresenter.get(update.id).setViewState(FilmPresenterViewState.ABORTING);
           });
         break;
       }
       case UserAction.DELETE_COMMENT:
+        this._filmPresenter.get(film.id).setViewState(FilmPresenterViewState.DELETING);
         this._api.deleteComment(update)
           .then(() => {
             this._filmsModel.deleteComment(updateType, update, film);
+          })
+          .catch(() => {
+            this._filmPresenter.get(film.id).setViewState(FilmPresenterViewState.ABORTING);
           });
         break;
       case UserAction.ADD_COMMENT:
+        this._filmPresenter.get(film.id).setViewState(FilmPresenterViewState.SAVING);
         this._api.addComment(update, film)
           .then((response) => {
             this._filmsModel.addComment(updateType, response);
+          })
+          .catch(() => {
+            this._filmPresenter.get(film.id).setViewState(FilmPresenterViewState.ABORTING);
           });
         break;
     }
