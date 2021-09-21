@@ -54,6 +54,7 @@ filmsPresenter.init();
 api.getFilms()
   .then((films) => {
     filmsModel.setFilms(UpdateType.INIT, films);
+    render(footerStatisticsElement, new FilmAmountView(films.length));
   })
   .catch(() => {
     filmsModel.setFilms(UpdateType.INIT, []);
