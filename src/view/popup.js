@@ -161,6 +161,16 @@ export default class Popup extends SmartView {
     return createPopupTemplate(this._data);
   }
 
+  restoreHandlers() {
+    this._setInnerHandlers();
+    this.setCloseClickHandler(this._callback.closeClick);
+    this.setFavoriteClickHandler(this._callback.favoriteClick);
+    this.setAlreadyWatchedClickHandler(this._callback.alreadyWatchedClick);
+    this.setWatchlistClickHandler(this._callback.watchlistClick);
+    this.setCommentDeleteClickHandler(this._callback.commentDeleteClick);
+    this.setAddCommentHandler(this._callback.addComment);
+  }
+
   _closeClickHandler(evt) {
     evt.preventDefault();
     this._callback.closeClick();
@@ -268,16 +278,6 @@ export default class Popup extends SmartView {
   setAddCommentHandler(callback) {
     this._callback.addComment = callback;
     document.addEventListener('keydown', this._keyDownCtrlEnterHandler);
-  }
-
-  restoreHandlers() {
-    this._setInnerHandlers();
-    this.setCloseClickHandler(this._callback.closeClick);
-    this.setFavoriteClickHandler(this._callback.favoriteClick);
-    this.setAlreadyWatchedClickHandler(this._callback.alreadyWatchedClick);
-    this.setWatchlistClickHandler(this._callback.watchlistClick);
-    this.setCommentDeleteClickHandler(this._callback.commentDeleteClick);
-    this.setAddCommentHandler(this._callback.addComment);
   }
 
   static parseFilmToData(film) {

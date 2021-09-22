@@ -16,15 +16,13 @@ const mainElement = bodyElement.querySelector('.main');
 const headerElement = bodyElement.querySelector('.header');
 const footerElement = bodyElement.querySelector('.footer');
 const footerStatisticsElement = footerElement.querySelector('.footer__statistics');
-let statsComponent = null;
 
 const api = new Api(END_POINT, AUTHORIZATION);
-
 const filmsModel = new FilmsModel();
 const filterModel = new FilterModel();
-
 const filmsPresenter = new FilmsPresenter(mainElement, filmsModel, filterModel, api);
 
+let statsComponent = null;
 const handleMenuClick = (menuItem) => {
   switch (menuItem) {
     case MenuItem.FILMS:

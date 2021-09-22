@@ -1,11 +1,10 @@
 import {render, remove, RenderPosition} from '../utils/render.js';
 import {sortFilmByDate, sortFilmByRating} from '../utils/film.js';
 import {filter} from '../utils/filter.js';
-import {SortType, FilmTitle, UserAction, UpdateType, FilterType} from '../const.js';
+import {SortType, UserAction, UpdateType, FilterType} from '../const.js';
 import FilmsView from '../view/films.js';
 import FilmsListView from '../view/films-list.js';
 import FilmsContainerView from '../view/films-container.js';
-import FilmExtraView from '../view/films-extra.js';
 import NoFilmView from '../view/no-film.js';
 import SortView from '../view/sort.js';
 import ShowMoreView from '../view/show-more.js';
@@ -27,8 +26,6 @@ export default class Films {
     this._isLoading = true;
 
     this._filmPresenter = new Map();
-    this._filmRatedPresenter = new Map();
-    this._filmCommentedPresenter = new Map();
 
     this._sortComponent = null;
     this._showMoreComponent = null;
@@ -36,11 +33,7 @@ export default class Films {
 
     this._filmsComponent = new FilmsView();
     this._filmsListComponent = new FilmsListView();
-    this._filmsRatedListComponent = new FilmExtraView(FilmTitle.RATED);
-    this._filmsCommentedListComponent = new FilmExtraView(FilmTitle.COMMENTED);
     this._filmsContainerComponent = new FilmsContainerView();
-    this._filmsRatedContainerComponent = new FilmsContainerView();
-    this._filmsCommentedContainerComponent = new FilmsContainerView();
     this._loadingComponent = new LoadingView();
 
     this._handleViewAction = this._handleViewAction.bind(this);
@@ -49,7 +42,6 @@ export default class Films {
     this._handleModeChange = this._handleModeChange.bind(this);
     this._handleShowMoreClick = this._handleShowMoreClick.bind(this);
     this._handleSortTypeChange = this._handleSortTypeChange.bind(this);
-
   }
 
   init() {
@@ -78,10 +70,6 @@ export default class Films {
         return filteredTasks.sort(sortFilmByRating);
     }
     return filteredTasks;
-  }
-
-  _getFilmPresenters() {
-    return [this._filmPresenter, this._filmRatedPresenter, this._filmCommentedPresenter];
   }
 
   _handleModeChange() {
