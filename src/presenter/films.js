@@ -13,7 +13,6 @@ import LoadingView from '../view/loading.js';
 import FilmPresenter, {State as FilmPresenterViewState} from './film.js';
 
 const FILM_COUNT_PER_STEP = 5;
-const FILMS_EXTRA_COUNT = 2;
 
 export default class Films {
   constructor (filmsContainer, filmsModel, filterModel, api) {
@@ -86,7 +85,7 @@ export default class Films {
   }
 
   _handleModeChange() {
-    this._getFilmPresenters().map((presenter) => presenter.forEach((item) => item.resetView()));
+    this._filmPresenter.forEach((presenter) => presenter.resetView());
   }
 
   _handleViewAction(actionType, updateType, update, film) {
@@ -178,14 +177,6 @@ export default class Films {
     films.forEach((film) => this._renderFilm(film, this._filmsContainerComponent, this._filmPresenter));
   }
 
-  _renderRatedFilms(from, to) {
-    this._ratedFilms.slice(from, to).forEach((film) => this._renderFilm(film, this._filmsRatedContainerComponent, this._filmRatedPresenter));
-  }
-
-  _renderCommentedFilms(from, to) {
-    this._commentedFilms.slice(from, to).forEach((film) => this._renderFilm(film, this._filmsCommentedContainerComponent, this._filmCommentedPresenter));
-  }
-
   _renderNoFilms() {
     this._noFilmComponent = new NoFilmView(this._filterType);
     render(this._filmsContainer, this._noFilmComponent);
@@ -216,18 +207,6 @@ export default class Films {
     this._showMoreComponent = new ShowMoreView();
     this._showMoreComponent.setClickHandler(this._handleShowMoreClick);
     render(this._filmsListComponent, this._showMoreComponent);
-  }
-
-  _renderRatedFilmList() {
-    render(this._filmsComponent, this._filmsRatedListComponent);
-    render(this._filmsRatedListComponent, this._filmsRatedContainerComponent);
-    this._renderRatedFilms(0, Math.min(this._films.length, FILMS_EXTRA_COUNT));
-  }
-
-  _renderCommentedFilmList() {
-    render(this._filmsComponent, this._filmsCommentedListComponent);
-    render(this._filmsCommentedListComponent, this._filmsCommentedContainerComponent);
-    this._renderCommentedFilms(0, Math.min(this._films.length, FILMS_EXTRA_COUNT));
   }
 
   _clearBoard({resetRenderedFilmCount = false, resetSortType = false} = {}) {

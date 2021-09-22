@@ -82,7 +82,7 @@ export default class Film {
 
   resetView() {
     if (this._mode !== Mode.DEFAULT) {
-      this._mode = Mode.DEFAULT;
+      this._closePopup();
     }
   }
 
@@ -126,13 +126,11 @@ export default class Film {
   }
 
   _openPopup() {
-    this._closePopup();
+    this._changeMode();
     this._getComments();
     render(this._popupContainer, this._popupComponent);
     this._popupContainer.classList.add('hide-overflow');
     document.addEventListener('keydown', this._onDocumentKeydown);
-    this._popupComponent.reset(this._film);
-    this._changeMode();
     this._mode = Mode.POPUP;
   }
 
@@ -149,6 +147,7 @@ export default class Film {
   _onDocumentKeydown(evt) {
     if (evt.key === 'Escape' || evt.key === 'Esc') {
       evt.preventDefault();
+      this._popupComponent.reset(this._film);
       this._closePopup();
     }
   }
