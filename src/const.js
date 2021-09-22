@@ -1,3 +1,7 @@
+export const ZERO_FILMS_COUNT = 0;
+export const MIN_FILMS_COUNT = 10;
+export const MAX_FILMS_COUNT = 20;
+
 export const EMOTIONS = ['smile', 'sleeping', 'puke', 'angry'];
 
 export const SortType = {
@@ -47,4 +51,10 @@ export const StatsPeriod = {
   WEEK: 6,
   MOUNTH: 30,
   YEAR: 365,
+};
+
+export const UserRank = {
+  NOVICE: 'Novice',
+  FAN: 'Fan',
+  MOVIE_BUFF: 'Movie Buff',
 };

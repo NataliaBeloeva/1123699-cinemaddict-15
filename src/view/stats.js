@@ -4,6 +4,7 @@ import Chart from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import {getFilmGenres, makeItemsUnique, getGenresSorted, getFilmsInPeriod, getTotalDuration} from '../utils/stats.js';
 import {StatsPeriod} from '../const.js';
+import {getUserRank} from '../utils/film.js';
 
 const BAR_HEIGHT = 50;
 
@@ -74,6 +75,7 @@ const renderGenresChart = (genresCtx, films) => {
 
 const createStatsTemplate = (data) => {
   const {films, dateFrom, dateTo} = data;
+  const rating = getUserRank(data.films.length);
   const filmsInPeriod = getFilmsInPeriod(dateFrom, dateTo, films);
   const watchedFilmCount = filmsInPeriod.length;
   const totalDuration = getTotalDuration(filmsInPeriod);
@@ -85,7 +87,7 @@ const createStatsTemplate = (data) => {
     <p class="statistic__rank">
       Your rank
       <img class="statistic__img" src="images/bitmap@2x.png" alt="Avatar" width="35" height="35">
-      <span class="statistic__rank-label">Movie buff</span>
+      <span class="statistic__rank-label">${rating}</span>
     </p>
 
     <form action="https://echo.htmlacademy.ru/" method="get" class="statistic__filters">

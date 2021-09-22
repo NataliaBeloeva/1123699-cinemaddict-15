@@ -76,6 +76,7 @@ export default class Film {
 
   destroy() {
     remove(this._filmComponent);
+    this._closePopup();
     remove(this._popupComponent);
   }
 
