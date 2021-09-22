@@ -1,13 +1,6 @@
 import dayjs from 'dayjs';
-import {getRandomInteger} from './common.js';
-import {ZERO_FILMS_COUNT, MIN_FILMS_COUNT, MAX_FILMS_COUNT, UserRank} from '../const.js';
+import {WatchedFilm, UserRank} from '../const.js';
 
-export const generateDate = () => {
-  const maxDaysGap = 7;
-  const daysGap = getRandomInteger(-maxDaysGap, maxDaysGap);
-
-  return dayjs().add(daysGap, 'day').toDate();
-};
 export const humanizeDate = (date) => dayjs(date).format('YYYY/MM/DD hh:mm');
 export const humanizeDateCard = (date) => dayjs(date).format('YYYY');
 export const humanizeDatePopup = (date) => dayjs(date).format('DD MMMM YYYY');
@@ -18,9 +11,9 @@ export const humanizeRuntime = (time) => `${Math.floor(time / 60)}h ${time % 60}
 export const isDateToday = (date) => dayjs(date).isToday();
 
 export const getUserRank = (watchedFilmCount) => {
-  const isNovice = watchedFilmCount > ZERO_FILMS_COUNT && watchedFilmCount <= MIN_FILMS_COUNT;
-  const isFan = watchedFilmCount > MIN_FILMS_COUNT && watchedFilmCount <= MAX_FILMS_COUNT;
-  const isMovieBuff = watchedFilmCount > MAX_FILMS_COUNT;
+  const isNovice = watchedFilmCount > WatchedFilm.ZERO && watchedFilmCount <= WatchedFilm.MIN;
+  const isFan = watchedFilmCount > WatchedFilm.MIN && watchedFilmCount <= WatchedFilm.MAX;
+  const isMovieBuff = watchedFilmCount > WatchedFilm.MAX;
 
   if (isNovice) {
     return UserRank.NOVICE;

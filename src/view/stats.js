@@ -168,8 +168,8 @@ export default class Stats extends SmartView {
   }
 
   _rangeChangeHandler(evt) {
-    const date = new FormData(evt.currentTarget);
-    const dateFrom = this._getStatsPeriod(date.get('statistic-filter'));
+    const data = new FormData(evt.currentTarget);
+    const dateFrom = this._getStatsPeriod(data.get('statistic-filter'));
     if (!dateFrom) {
       return;
     }

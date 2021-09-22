@@ -1,11 +1,10 @@
 import {render, remove, RenderPosition} from '../utils/render.js';
 import {sortFilmByDate, sortFilmByRating} from '../utils/film.js';
 import {filter} from '../utils/filter.js';
-import {SortType, FilmTitle, UserAction, UpdateType, FilterType} from '../const.js';
+import {SortType, UserAction, UpdateType, FilterType} from '../const.js';
 import FilmsView from '../view/films.js';
 import FilmsListView from '../view/films-list.js';
 import FilmsContainerView from '../view/films-container.js';
-import FilmExtraView from '../view/films-extra.js';
 import NoFilmView from '../view/no-film.js';
 import SortView from '../view/sort.js';
 import ShowMoreView from '../view/show-more.js';
@@ -13,7 +12,6 @@ import LoadingView from '../view/loading.js';
 import FilmPresenter, {State as FilmPresenterViewState} from './film.js';
 
 const FILM_COUNT_PER_STEP = 5;
-const FILMS_EXTRA_COUNT = 2;
 
 export default class Films {
   constructor (filmsContainer, filmsModel, filterModel, api) {
@@ -28,8 +26,6 @@ export default class Films {
     this._isLoading = true;
 
     this._filmPresenter = new Map();
-    this._filmRatedPresenter = new Map();
-    this._filmCommentedPresenter = new Map();
 
     this._sortComponent = null;
     this._showMoreComponent = null;
@@ -37,11 +33,7 @@ export default class Films {
 
     this._filmsComponent = new FilmsView();
     this._filmsListComponent = new FilmsListView();
-    this._filmsRatedListComponent = new FilmExtraView(FilmTitle.RATED);
-    this._filmsCommentedListComponent = new FilmExtraView(FilmTitle.COMMENTED);
     this._filmsContainerComponent = new FilmsContainerView();
-    this._filmsRatedContainerComponent = new FilmsContainerView();
-    this._filmsCommentedContainerComponent = new FilmsContainerView();
     this._loadingComponent = new LoadingView();
 
     this._handleViewAction = this._handleViewAction.bind(this);
@@ -50,7 +42,6 @@ export default class Films {
     this._handleModeChange = this._handleModeChange.bind(this);
     this._handleShowMoreClick = this._handleShowMoreClick.bind(this);
     this._handleSortTypeChange = this._handleSortTypeChange.bind(this);
-
   }
 
   init() {
@@ -81,12 +72,8 @@ export default class Films {
     return filteredTasks;
   }
 
-  _getFilmPresenters() {
-    return [this._filmPresenter, this._filmRatedPresenter, this._filmCommentedPresenter];
-  }
-
   _handleModeChange() {
-    this._getFilmPresenters().map((presenter) => presenter.forEach((item) => item.resetView()));
+    this._filmPresenter.forEach((presenter) => presenter.resetView());
   }
 
   _handleViewAction(actionType, updateType, update, film) {
@@ -178,14 +165,6 @@ export default class Films {
     films.forEach((film) => this._renderFilm(film, this._filmsContainerComponent, this._filmPresenter));
   }
 
-  _renderRatedFilms(from, to) {
-    this._ratedFilms.slice(from, to).forEach((film) => this._renderFilm(film, this._filmsRatedContainerComponent, this._filmRatedPresenter));
-  }
-
-  _renderCommentedFilms(from, to) {
-    this._commentedFilms.slice(from, to).forEach((film) => this._renderFilm(film, this._filmsCommentedContainerComponent, this._filmCommentedPresenter));
-  }
-
   _renderNoFilms() {
     this._noFilmComponent = new NoFilmView(this._filterType);
     render(this._filmsContainer, this._noFilmComponent);
@@ -216,18 +195,6 @@ export default class Films {
     this._showMoreComponent = new ShowMoreView();
     this._showMoreComponent.setClickHandler(this._handleShowMoreClick);
     render(this._filmsListComponent, this._showMoreComponent);
-  }
-
-  _renderRatedFilmList() {
-    render(this._filmsComponent, this._filmsRatedListComponent);
-    render(this._filmsRatedListComponent, this._filmsRatedContainerComponent);
-    this._renderRatedFilms(0, Math.min(this._films.length, FILMS_EXTRA_COUNT));
-  }
-
-  _renderCommentedFilmList() {
-    render(this._filmsComponent, this._filmsCommentedListComponent);
-    render(this._filmsCommentedListComponent, this._filmsCommentedContainerComponent);
-    this._renderCommentedFilms(0, Math.min(this._films.length, FILMS_EXTRA_COUNT));
   }
 
   _clearBoard({resetRenderedFilmCount = false, resetSortType = false} = {}) {

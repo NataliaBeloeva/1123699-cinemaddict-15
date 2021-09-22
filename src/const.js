@@ -1,6 +1,10 @@
-export const ZERO_FILMS_COUNT = 0;
-export const MIN_FILMS_COUNT = 10;
-export const MAX_FILMS_COUNT = 20;
+export const SHAKE_ANIMATION_TIMEOUT = 600;
+
+export const WatchedFilm = {
+  ZERO: 0,
+  MIN: 10,
+  MAX: 20,
+};
 
 export const EMOTIONS = ['smile', 'sleeping', 'puke', 'angry'];
 
@@ -8,11 +12,6 @@ export const SortType = {
   DEFAULT: 'default',
   DATE: 'date',
   RATING: 'rating',
-};
-
-export const FilmTitle = {
-  RATED: 'Top rated',
-  COMMENTED: 'Most commented',
 };
 
 export const Mode = {
