@@ -1,12 +1,16 @@
 export const SHAKE_ANIMATION_TIMEOUT = 600;
+export const MINUTES_IN_HOUR_COUNT = 60;
+export const HOUR_ZERO_COUNT = 0;
+export const MINUTES_ZERO_COUNT = 0;
+export const INITIAL_RUNTIME_COUNT = 0;
+
+export const EMOTIONS = ['smile', 'sleeping', 'puke', 'angry'];
 
 export const WatchedFilm = {
   ZERO: 0,
   MIN: 10,
   MAX: 20,
 };
-
-export const EMOTIONS = ['smile', 'sleeping', 'puke', 'angry'];
 
 export const SortType = {
   DEFAULT: 'default',
@@ -37,6 +41,13 @@ export const FilterType = {
   WATCHLIST: 'watchlist',
   HISTORY: 'areadyWatched',
   FAVORITES: 'favorites',
+};
+
+export const FilterName = {
+  ALL: 'All Movies',
+  WATCHLIST: 'Watchlist',
+  HISTORY: 'History',
+  FAVORITES: 'Favorites',
 };
 
 export const MenuItem = {

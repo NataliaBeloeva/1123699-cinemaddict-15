@@ -162,6 +162,26 @@ export default class Stats extends SmartView {
     return createStatsTemplate(this._data);
   }
 
+  _setCharts() {
+    if (this._chart !== null) {
+      this._chart = null;
+    }
+
+    const {films, dateFrom, dateTo, check} = this._data;
+
+    Array.from(this.getElement().querySelector('.statistic__filters').children)
+      .find((child) => child.value === check).checked = true;
+
+    const filmsInPeriod = getFilmsInPeriod(dateFrom, dateTo, films);
+    const genresCtx = this.getElement().querySelector('.statistic__chart');
+
+    this._chart = renderGenresChart(genresCtx, filmsInPeriod);
+  }
+
+  _setInnerHandlers() {
+    this.getElement().querySelector('.statistic__filters').addEventListener('change', this._rangeChangeHandler);
+  }
+
   restoreHandlers() {
     this._setCharts();
     this._setInnerHandlers();
@@ -200,23 +220,4 @@ export default class Stats extends SmartView {
     }
   }
 
-  _setCharts() {
-    if (this._chart !== null) {
-      this._chart = null;
-    }
-
-    const {films, dateFrom, dateTo, check} = this._data;
-
-    Array.from(this.getElement().querySelector('.statistic__filters').children)
-      .find((child) => child.value === check).checked = true;
-
-    const filmsInPeriod = getFilmsInPeriod(dateFrom, dateTo, films);
-    const genresCtx = this.getElement().querySelector('.statistic__chart');
-
-    this._chart = renderGenresChart(genresCtx, filmsInPeriod);
-  }
-
-  _setInnerHandlers() {
-    this.getElement().querySelector('.statistic__filters').addEventListener('change', this._rangeChangeHandler);
-  }
 }

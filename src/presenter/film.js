@@ -23,7 +23,7 @@ export default class Film {
 
     this._handleOpenPopup = this._handleOpenPopup.bind(this);
     this._handleClosePopup = this._handleClosePopup.bind(this);
-    this._onDocumentKeydown = this._onDocumentKeydown.bind(this);
+    this._documentKeydownHandler = this._documentKeydownHandler.bind(this);
 
     this._handleFavoriteClick = this._handleFavoriteClick.bind(this);
     this._handleAlreadyWatchedClick = this._handleAlreadyWatchedClick.bind(this);
@@ -130,7 +130,7 @@ export default class Film {
     this._getComments();
     render(this._popupContainer, this._popupComponent);
     this._popupContainer.classList.add('hide-overflow');
-    document.addEventListener('keydown', this._onDocumentKeydown);
+    document.addEventListener('keydown', this._documentKeydownHandler);
     this._mode = Mode.POPUP;
   }
 
@@ -139,16 +139,8 @@ export default class Film {
     if (currentPopup) {
       currentPopup.remove();
       this._popupContainer.classList.remove('hide-overflow');
-      document.removeEventListener('keydown', this._onDocumentKeydown);
+      document.removeEventListener('keydown', this._documentKeydownHandler);
       this._mode = Mode.DEFAULT;
-    }
-  }
-
-  _onDocumentKeydown(evt) {
-    if (evt.key === 'Escape' || evt.key === 'Esc') {
-      evt.preventDefault();
-      this._popupComponent.reset(this._film);
-      this._closePopup();
     }
   }
 
@@ -231,4 +223,13 @@ export default class Film {
       this._film,
     );
   }
+
+  _documentKeydownHandler(evt) {
+    if (evt.key === 'Escape' || evt.key === 'Esc') {
+      evt.preventDefault();
+      this._popupComponent.reset(this._film);
+      this._closePopup();
+    }
+  }
+
 }

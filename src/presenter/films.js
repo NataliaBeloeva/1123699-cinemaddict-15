@@ -1,6 +1,6 @@
 import {render, remove, RenderPosition} from '../utils/render.js';
 import {sortFilmByDate, sortFilmByRating} from '../utils/film.js';
-import {filter} from '../utils/filter.js';
+import {FilteredFilm} from '../utils/filter.js';
 import {SortType, UserAction, UpdateType, FilterType} from '../const.js';
 import FilmsView from '../view/films.js';
 import FilmsListView from '../view/films-list.js';
@@ -61,7 +61,7 @@ export default class Films {
   _getFilms() {
     this._filterType = this._filterModel.getFilter();
     const films = this._filmsModel.getFilms();
-    const filteredTasks = filter[this._filterType](films);
+    const filteredTasks = FilteredFilm[this._filterType](films);
 
     switch (this._currentSortType) {
       case SortType.DATE:

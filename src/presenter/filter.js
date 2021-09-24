@@ -1,6 +1,6 @@
 import {render, replace, remove} from '../utils/render.js';
-import {filter} from '../utils/filter.js';
-import {FilterType, UpdateType, MenuItem} from '../const.js';
+import {FilteredFilm} from '../utils/filter.js';
+import {FilterType, FilterName, UpdateType, MenuItem} from '../const.js';
 import ProfileView from '../view/profile.js';
 import FilterView from '../view/filter.js';
 
@@ -48,6 +48,37 @@ export default class Filter {
     remove(prevProfileComponent);
   }
 
+  _getWatchedFilms() {
+    return this._getFilters().find((item) => item.type === FilterType.HISTORY).count;
+  }
+
+  _getFilters() {
+    const films = this._filmsModel.getFilms();
+
+    return [
+      {
+        type: FilterType.ALL,
+        name: FilterName.ALL,
+        count: FilteredFilm[FilterType.ALL](films).length,
+      },
+      {
+        type: FilterType.WATCHLIST,
+        name: FilterName.WATCHLIST,
+        count: FilteredFilm[FilterType.WATCHLIST](films).length,
+      },
+      {
+        type: FilterType.HISTORY,
+        name: FilterName.HISTORY,
+        count: FilteredFilm[FilterType.HISTORY](films).length,
+      },
+      {
+        type: FilterType.FAVORITES,
+        name: FilterName.FAVORITES,
+        count: FilteredFilm[FilterType.FAVORITES](films).length,
+      },
+    ];
+  }
+
   _handleModelEvent() {
     this.init();
   }
@@ -68,36 +99,5 @@ export default class Filter {
     this._menutype = menutype;
     this.init();
     this._menuClickHandler(menutype);
-  }
-
-  _getWatchedFilms() {
-    return this._getFilters().find((item) => item.type === FilterType.HISTORY).count;
-  }
-
-  _getFilters() {
-    const films = this._filmsModel.getFilms();
-
-    return [
-      {
-        type: FilterType.ALL,
-        name: 'All Movies',
-        count: filter[FilterType.ALL](films).length,
-      },
-      {
-        type: FilterType.WATCHLIST,
-        name: 'Watchlist',
-        count: filter[FilterType.WATCHLIST](films).length,
-      },
-      {
-        type: FilterType.HISTORY,
-        name: 'History',
-        count: filter[FilterType.HISTORY](films).length,
-      },
-      {
-        type: FilterType.FAVORITES,
-        name: 'Favorites',
-        count: filter[FilterType.FAVORITES](films).length,
-      },
-    ];
   }
 }

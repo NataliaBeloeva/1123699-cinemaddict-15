@@ -35,6 +35,17 @@ export default class Filter extends AbstractView {
     return createFilterTemplate(this._filters, this._currentFilter);
   }
 
+  setFilterTypeChangeHandler(callback) {
+    this._callback.filterTypeChange = callback;
+    this.getElement().querySelector('.main-navigation__items').addEventListener('click', this._filterTypeChangeHandler);
+  }
+
+  setMenuTypeChangeHandler(callback) {
+    this._callback.menuTypeChange = callback;
+    this.getElement().querySelector('.main-navigation__items').addEventListener('click', this._menuTypeChangeHandler);
+    this.getElement().querySelector('.main-navigation__additional').addEventListener('click', this._menuTypeChangeHandler);
+  }
+
   _filterTypeChangeHandler(evt) {
     if (evt.target.tagName === 'A') {
       evt.preventDefault();
@@ -47,16 +58,5 @@ export default class Filter extends AbstractView {
       evt.preventDefault();
       this._callback.menuTypeChange(evt.target.dataset.menuType);
     }
-  }
-
-  setFilterTypeChangeHandler(callback) {
-    this._callback.filterTypeChange = callback;
-    this.getElement().querySelector('.main-navigation__items').addEventListener('click', this._filterTypeChangeHandler);
-  }
-
-  setMenuTypeChangeHandler(callback) {
-    this._callback.menuTypeChange = callback;
-    this.getElement().querySelector('.main-navigation__items').addEventListener('click', this._menuTypeChangeHandler);
-    this.getElement().querySelector('.main-navigation__additional').addEventListener('click', this._menuTypeChangeHandler);
   }
 }
